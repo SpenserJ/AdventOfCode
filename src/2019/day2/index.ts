@@ -1,13 +1,12 @@
 import fs from 'fs';
 import path from 'path';
 
-
 const initialIntcode = fs.readFileSync(path.resolve(__dirname, './input'), 'utf-8')
   .split(',')
-  .map(v => parseInt(v, 10));
+  .map((v) => parseInt(v, 10));
 
-const getOutput = (noun, verb) => {
-  let intcode = [...initialIntcode];
+const getOutput = (noun: number, verb: number) => {
+  const intcode = [...initialIntcode];
 
   // Adjust program memory
   intcode[1] = noun;
@@ -25,12 +24,12 @@ const getOutput = (noun, verb) => {
   }
 
   return intcode[0];
-}
+};
 
 // console.log('Part 1:', getOutput(12, 2));
 
 // Part 2
-let match = false;
+let match: boolean | [number, number] = false;
 for (let i = 0; i <= 99; i += 1) {
   for (let j = 0; j <= 99; j += 1) {
     const output = getOutput(i, j);
@@ -41,4 +40,9 @@ for (let i = 0; i <= 99; i += 1) {
   }
   if (match) { break; }
 }
-console.log('Part 2:', (100 * match[0]) + match[1]);
+
+if (typeof match === 'boolean') {
+  console.error('Failed to find match');
+} else {
+  console.log('Part 2:', (100 * match[0]) + match[1]);
+}

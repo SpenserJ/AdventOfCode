@@ -1,31 +1,36 @@
-
 import fs from 'fs';
 import path from 'path';
 
-const wires = fs.readFileSync(path.resolve(__dirname, './input'), 'utf-8')
+interface Wire {
+  from: [number, number];
+  to: [number, number];
+  startingSteps: number;
+}
+
+const wires: Wire[][] = fs.readFileSync(path.resolve(__dirname, './input'), 'utf-8')
   .trim()
   .split('\n')
   .map((wire) => {
     let x = 0;
     let y = 0;
     let steps = 0;
-    return wire.trim().split(',').map(step => {
+    return wire.trim().split(',').map((step) => {
       const startingSteps = steps;
       const [direction, ...amountRaw] = step.split('');
       const amount = parseInt(amountRaw.join(''), 10);
-      const from = [x, y];
+      const from = [x, y] as [number, number];
       if (direction === 'U' || direction === 'D') {
         y += amount * (direction === 'U' ? -1 : 1);
       } else {
         x += amount * (direction === 'L' ? -1 : 1);
       }
-      const to = [x, y];
+      const to = [x, y] as [number, number];
       steps += amount;
       return { from, to, startingSteps };
     });
   });
 
-const testOverlapPoints = (a, b) => {
+const testOverlapPoints = (a: [number, number], b: [number, number]) => {
   if (a[0] < b[0] && b[0] < a[1]) { return true; }
   if (a[0] < b[1] && b[1] < a[1]) { return true; }
   if (b[0] < a[0] && a[0] < b[1]) { return true; }
@@ -33,16 +38,16 @@ const testOverlapPoints = (a, b) => {
   return false;
 };
 
-const sortNumbers = (a, b) => (a - b);
+const sortNumbers = (a: number, b: number) => (a - b);
 
-const testOverlapWires = (a, b) => {
+const testOverlapWires = (a: Wire, b: Wire) => {
   const overlapsHorizontal = testOverlapPoints(
-    [a.from[0], a.to[0]].sort(sortNumbers),
-    [b.from[0], b.to[0]].sort(sortNumbers),
+    [a.from[0], a.to[0]].sort(sortNumbers) as [number, number],
+    [b.from[0], b.to[0]].sort(sortNumbers) as [number, number],
   );
   const overlapsVertical = testOverlapPoints(
-    [a.from[1], a.to[1]].sort(sortNumbers),
-    [b.from[1], b.to[1]].sort(sortNumbers),
+    [a.from[1], a.to[1]].sort(sortNumbers) as [number, number],
+    [b.from[1], b.to[1]].sort(sortNumbers) as [number, number],
   );
   return overlapsHorizontal && overlapsVertical;
 };
@@ -63,7 +68,9 @@ for (let i = 0; i < wires[0].length; i += 1) {
       };
       const distance = Math.abs(x) + Math.abs(y);
       const steps = a.startingSteps + b.startingSteps + intersectSteps.x + intersectSteps.y;
-      overlappingWirePoints.push({ x, y, distance, steps });
+      overlappingWirePoints.push({
+        x, y, distance, steps,
+      });
     }
   }
 }
