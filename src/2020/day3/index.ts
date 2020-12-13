@@ -1,5 +1,13 @@
 import { loadInput } from '../../utils';
 
+const inputs = [
+  { right: 1, down: 1 },
+  { right: 3, down: 1 },
+  { right: 5, down: 1 },
+  { right: 7, down: 1 },
+  { right: 1, down: 2 },
+];
+
 type TreeMap = string[][];
 
 // Convert the input into a TreeMap where `.` is clear and `#` is tree
@@ -36,5 +44,10 @@ const countTreesInPath = (right: number, down: number, debug = false): number =>
   return treesEncountered;
 };
 
-const treesEncountered = countTreesInPath(3, 1);
-console.log('Encountered', treesEncountered, 'trees');
+const result = inputs.reduce((acc, { right, down }) => {
+  const treesEncountered = countTreesInPath(right, down);
+  console.log(`Right=${right}, Down=${down}: Encountered ${treesEncountered} trees`);
+  return acc * treesEncountered;
+}, 1);
+
+console.log('Product of paths is', result);
