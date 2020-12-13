@@ -24,8 +24,13 @@ const parseBoardingPass = (input: string): BoardingPass => {
 
 const inputs = loadInput(__dirname);
 
-const foundSeatIDs = inputs.map((v) => parseBoardingPass(v).seatID);
+const foundSeatIDs = inputs.map((v) => parseBoardingPass(v).seatID).sort();
+const largest = foundSeatIDs[foundSeatIDs.length - 1];
 
-const largest = foundSeatIDs.reduce((acc, next) => Math.max(acc, next), 0);
+const missing = [];
+for (let i = Math.max(...foundSeatIDs) - 1; i > foundSeatIDs[0]; i -= 1) {
+  if (!foundSeatIDs.includes(i)) { missing.push(i); }
+}
 
 console.log('Largest seatID:', largest);
+console.log('Missing:', missing);
