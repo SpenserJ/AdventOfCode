@@ -21,3 +21,24 @@ export const numBetween = (value: any, min: number, max: number): boolean => {
 
   return min <= num && num <= max;
 };
+
+// Input of false means left and true means right
+export const binaryPartition = (min: number, max: number, input: boolean[]): [number, number] => {
+  const range = [min, max] as [number, number];
+
+  let nextStep = input.shift();
+  while (typeof nextStep !== 'undefined') {
+    const rangeSize = range[1] - range[0];
+    const halfRange = Math.ceil(rangeSize / 2);
+    if (nextStep) {
+      range[0] += halfRange;
+    } else {
+      range[1] -= halfRange;
+    }
+
+    // Pull the next step out of the input
+    nextStep = input.shift();
+  }
+
+  return range;
+};
