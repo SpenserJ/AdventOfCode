@@ -1,9 +1,11 @@
 import fs from 'fs';
 import path from 'path';
 
-export const loadInput = (dir: string, file = 'input'): string[] => fs
+export const loadRawInput = (dir: string, file = 'input'): string => fs
   .readFileSync(path.resolve(dir, file), 'utf-8')
-  .trim()
+  .trim();
+
+export const loadInput = (dir: string, file = 'input'): string[] => loadRawInput(dir, file)
   .split('\n')
   .filter((v) => !!v);
 
