@@ -4,23 +4,33 @@ const expenses = loadInput(__dirname)
   .map((v) => parseInt(v, 10))
   .sort(sortNumbers);
 
-let pair: boolean | [number, number] = false;
-
-// Outer loop will be the number we're starting to compare with
-for (let i = 0; i < expenses.length; i += 1) {
-  // Inner loop is what we're adding
-  for (let j = expenses.length - 1; j > i; j -= 1) {
-    // If the two numbers equal 2020, save it and break out of the loops
-    if (expenses[i] + expenses[j] === 2020) {
-      pair = [expenses[i], expenses[j]];
-      break;
-    }
+const findExpenses = (count: number, target: number, startAt: number): number[] | false => {
+  // If we're on the last number, check if there is an exact match
+  if (count === 1) {
+    return expenses.indexOf(target) >= startAt ? [target] : false;
   }
-  if (pair) { break; }
-}
 
-if (typeof pair === 'boolean') {
-  console.error('Could not find correct expenses');
-} else {
-  console.log({ pair, total: pair[0] * pair[1] });
-}
+  for (let i = startAt; i < expenses.length; i += 1) {
+    const check = expenses[i];
+    const nested = findExpenses(count - 1, target - check, i + 1);
+    // If we found a match, return all of the numbers
+    if (nested !== false) { return [check].concat(nested); }
+  }
+
+  // If we get here, there were no matches for this input
+  return false;
+};
+
+const logMatch = (count: number): void => {
+  const match = findExpenses(count, 2020, 0);
+
+  if (typeof match === 'boolean') {
+    console.error('Could not find correct', count, 'expenses');
+  } else {
+    const product = match.reduce((acc, next) => (acc * next), 1);
+    console.log({ count, match, product });
+  }
+};
+
+logMatch(2);
+logMatch(3);

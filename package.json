@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "lint": "eslint src",
-    "start": "ts-node src/$0/day$1/index.ts"
+    "start": "yarn ts-node-dev --respawn ./src/$0/day$1/index.ts"
   },
   "author": "Spenser Jones <hello@spenserj.com>",
   "license": "MIT",
@@ -18,6 +18,7 @@
     "eslint-import-resolver-node": "0.3.4",
     "eslint-plugin-import": "2.22.0",
     "ts-node": "9.1.1",
+    "ts-node-dev": "1.1.1",
     "typescript": "4.1.3"
   },
   "dependencies": {
