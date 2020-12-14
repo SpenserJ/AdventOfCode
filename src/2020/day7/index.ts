@@ -43,4 +43,9 @@ const getCarryOptions = (bag: Bag): Set<Bag> => new Set([
   ...Array.from(bag.containedIn).flatMap((v) => Array.from(getCarryOptions(v))),
 ]);
 
+const getNestedBagCount = (bag: Bag): number => Array
+  .from(bag.contains.entries())
+  .reduce((acc, [innerBag, amount]) => (acc + amount + (amount * getNestedBagCount(innerBag))), 0);
+
 console.log('Part 1:', getCarryOptions(getBagByName('shiny gold')).size);
+console.log('Part 2:', getNestedBagCount(getBagByName('shiny gold')));
