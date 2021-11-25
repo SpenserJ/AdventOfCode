@@ -5,11 +5,13 @@
   "main": "index.js",
   "scripts": {
     "lint": "eslint src",
-    "start": "yarn ts-node-dev --respawn ./src/$0/day$1/index.ts"
+    "start": "yarn ts-node-dev --respawn ./src/$0/day$1/index.ts",
+    "test": "yarn jest --watch ./src/$0/day$1/"
   },
   "author": "Spenser Jones <hello@spenserj.com>",
   "license": "MIT",
   "devDependencies": {
+    "@types/jest": "^27.0.3",
     "@types/node": "16.11.10",
     "@typescript-eslint/eslint-plugin": "5.4.0",
     "@typescript-eslint/parser": "5.4.0",
@@ -18,11 +20,11 @@
     "eslint-config-airbnb-typescript": "16.0.0",
     "eslint-import-resolver-node": "0.3.6",
     "eslint-plugin-import": "2.25.3",
+    "jest": "^27.3.1",
+    "ts-jest": "^27.0.7",
     "ts-node": "10.4.0",
-    "ts-node-dev": "1.1.8"
-  },
-  "packageManager": "yarn@3.1.0",
-  "dependencies": {
+    "ts-node-dev": "1.1.8",
     "typescript": "4.4.4"
-  }
+  },
+  "packageManager": "yarn@3.1.0"
 }
