@@ -12,7 +12,7 @@ interface PassportRaw {
   cid?: string; // Country ID
 }
 
-const entryFieldRegExp = new RegExp('(?:^|\\s)(\\w{3}):([^\\s]+)', 'g');
+const entryFieldRegExp = /(?:^|\s)(\w{3}):([^\s]+)/g;
 const passports = loadRawInput(__dirname)
   .split('\n\n') // Split on a double linebreak
   .map((entry): PassportRaw => {
