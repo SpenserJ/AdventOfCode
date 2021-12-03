@@ -1,5 +1,7 @@
 /* eslint-disable no-cond-assign, no-continue */
 
+import { bisect } from '../../utils';
+
 const parseInput = (input: string) => input
   .trim()
   .split('\n');
@@ -24,22 +26,8 @@ export const part1 = (rawInput: string) => {
 };
 
 const splitMatchingBits = (input: string[], bitPosition: number) => {
-  let foundMidpoint = false;
-  let inputPosition = Math.ceil(input.length / 2);
-  let lastChecked = input[inputPosition][bitPosition];
-  while (foundMidpoint === false) {
-    const direction = (lastChecked === '1' ? -1 : 1);
-    inputPosition += direction;
-    if (typeof input[inputPosition] === 'undefined') {
-      break;
-    }
-    if (lastChecked !== input[inputPosition][bitPosition]) {
-      foundMidpoint = true;
-      if (input[inputPosition][bitPosition] === '0') { inputPosition += 1; }
-    }
-    lastChecked = input[inputPosition][bitPosition];
-  }
-  return [input.slice(0, inputPosition), input.slice(inputPosition)];
+  const [, lastLeft] = bisect(input, (value) => (value[bitPosition] === '1'));
+  return [input.slice(0, lastLeft + 1), input.slice(lastLeft + 1)];
 };
 
 export const part2 = (rawInput: string) => {

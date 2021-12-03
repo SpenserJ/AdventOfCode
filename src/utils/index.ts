@@ -42,3 +42,5 @@ export const binaryPartition = (min: number, max: number, input: boolean[]): [nu
 
   return range;
 };
+
+export { default as bisect } from './bisect';
