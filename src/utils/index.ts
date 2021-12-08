@@ -43,4 +43,7 @@ export const binaryPartition = (min: number, max: number, input: boolean[]): [nu
   return range;
 };
 
+export const sum = (input: number[]) => input.reduce((acc, next) => (acc + next), 0);
+
 export { default as bisect } from './bisect';
+export * from './arrays';
