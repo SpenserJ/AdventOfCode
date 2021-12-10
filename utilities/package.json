@@ -1,17 +1,11 @@
 {
-  "workspaces": [
-    "years/*",
-    "utilities"
-  ],
+  "name": "@spenserj-aoc/utilities",
   "private": true,
-  "name": "adventofcode",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "packageManager": "yarn@3.1.0",
   "scripts": {
     "lint": "eslint src",
-    "start": "yarn ts-node-dev --respawn ./src/$0/day$1/index.ts",
-    "test": "yarn jest --watch ./src/$0/day$1/"
+    "start": "yarn ts-node-dev --respawn ./day$0/index.ts",
+    "test": "yarn jest --watch ./day$0/"
   },
   "author": "Spenser Jones <hello@spenserj.com>",
   "license": "MIT",
@@ -30,6 +24,5 @@
     "ts-node": "10.4.0",
     "ts-node-dev": "1.1.8",
     "typescript": "4.4.4"
-  },
-  "packageManager": "yarn@3.1.0"
+  }
 }
