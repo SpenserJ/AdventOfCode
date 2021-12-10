@@ -1,4 +1,4 @@
-import { loadInput, sortNumbers } from '../../utils';
+import { loadInput, sortNumbers } from '@spenserj-aoc/utilities';
 
 interface Wire {
   from: [number, number];
