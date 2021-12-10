@@ -1,5 +1,3 @@
-/* eslint-disable no-cond-assign, no-continue */
-
 interface Instruction {
   direction: 'forward' | 'up' | 'down';
   amount: number;

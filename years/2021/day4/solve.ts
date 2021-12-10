@@ -1,5 +1,3 @@
-/* eslint-disable no-bitwise, no-continue */
-
 interface Board {
   cells: string[];
   mask: number;

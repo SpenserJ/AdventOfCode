@@ -9,9 +9,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "lint": "eslint src",
-    "start": "yarn ts-node-dev --respawn ./src/$0/day$1/index.ts",
-    "test": "yarn jest --watch ./src/$0/day$1/"
+    "lint": "eslint .",
+    "start": "yarn workspace @spenserj-aoc/$0 start $1",
+    "test": "yarn jest"
   },
   "author": "Spenser Jones <hello@spenserj.com>",
   "license": "MIT",

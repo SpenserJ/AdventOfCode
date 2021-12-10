@@ -1,5 +1,3 @@
-/* eslint-disable no-cond-assign, no-continue */
-
 class BadXMASValueError extends Error {
   constructor(public badValue: number, public preamble: number[]) {
     super(`Value ${badValue} cannot be verified with preamble: ${preamble.join(', ')}`);

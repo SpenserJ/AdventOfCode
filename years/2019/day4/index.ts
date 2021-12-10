@@ -1,4 +1,3 @@
-/* eslint-disable no-continue */
 const input = [271973, 785961];
 const strictMode = true;
 

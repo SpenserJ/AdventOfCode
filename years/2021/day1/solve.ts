@@ -1,5 +1,3 @@
-/* eslint-disable no-cond-assign, no-continue */
-
 const parseInput = (input: string): number[] => input
   .trim()
   .split('\n')

@@ -7,6 +7,9 @@ module.exports = {
   ],
   rules: {
     'no-console': 'off',
+    'no-continue': 'off',
+    'no-cond-assign': 'off',
+    'no-bitwise': 'off',
   },
   parserOptions: {
     project: [

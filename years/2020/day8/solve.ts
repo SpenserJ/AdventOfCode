@@ -1,5 +1,3 @@
-/* eslint-disable no-continue */
-
 const validOperations = ['acc', 'jmp', 'nop'] as const;
 
 type Operation = typeof validOperations[number];

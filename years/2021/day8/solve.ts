@@ -1,5 +1,3 @@
-/* eslint-disable no-continue */
-
 import { isArraySubset, sum } from '@spenserj-aoc/utilities';
 
 const possibleSignals = ['a', 'b', 'c', 'd', 'e', 'f', 'g'] as const;

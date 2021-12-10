@@ -1,5 +1,3 @@
-/* eslint-disable no-bitwise, no-continue */
-
 interface Point {
   x: number;
   y: number;
