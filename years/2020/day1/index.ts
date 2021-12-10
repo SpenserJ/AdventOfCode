@@ -1,4 +1,4 @@
-import { loadInput, sortNumbers } from '../../utils';
+import { loadInput, sortNumbers } from '@spenserj-aoc/utilities';
 
 const expenses = loadInput(__dirname)
   .map((v) => parseInt(v, 10))

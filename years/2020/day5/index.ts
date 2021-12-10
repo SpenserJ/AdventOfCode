@@ -1,4 +1,4 @@
-import { loadInput, binaryPartition } from '../../utils';
+import { loadInput, binaryPartition } from '@spenserj-aoc/utilities';
 
 interface BoardingPass {
   row: number;

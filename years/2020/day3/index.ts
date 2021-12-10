@@ -1,4 +1,4 @@
-import { loadInput } from '../../utils';
+import { loadInput } from '@spenserj-aoc/utilities';
 
 const inputs = [
   { right: 1, down: 1 },

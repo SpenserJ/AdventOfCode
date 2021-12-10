@@ -1,4 +1,4 @@
-import { loadRawInput } from '../../utils';
+import { loadRawInput } from '@spenserj-aoc/utilities';
 
 const input = loadRawInput(__dirname).split('\n\n'); // Split into groups
 

@@ -1,4 +1,4 @@
-import { loadRawInput, numBetween } from '../../utils';
+import { loadRawInput, numBetween } from '@spenserj-aoc/utilities';
 
 interface PassportRaw {
   // We don't really care about the types. We just care if they're set
