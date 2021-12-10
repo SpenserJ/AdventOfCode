@@ -1,4 +1,4 @@
-import { loadRawInput } from '../../utils';
+import { loadRawInput } from '@spenserj-aoc/utilities';
 import { part1, part2 } from './solve';
 
 const input = loadRawInput(__dirname);

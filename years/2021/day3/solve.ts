@@ -1,6 +1,6 @@
 /* eslint-disable no-cond-assign, no-continue */
 
-import { bisect } from '../../utils';
+import { bisect } from '@spenserj-aoc/utilities';
 
 const parseInput = (input: string) => input
   .trim()
