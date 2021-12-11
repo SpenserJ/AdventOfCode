@@ -10,6 +10,9 @@ module.exports = {
     'no-continue': 'off',
     'no-cond-assign': 'off',
     'no-bitwise': 'off',
+    'no-underscore-dangle': ['error', {
+      allowAfterThis: true,
+    }],
   },
   parserOptions: {
     project: [
