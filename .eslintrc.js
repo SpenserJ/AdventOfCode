@@ -13,6 +13,14 @@ module.exports = {
     'no-underscore-dangle': ['error', {
       allowAfterThis: true,
     }],
+    'max-classes-per-file': 'off',
+    'class-methods-use-this': 'off',
+    'no-restricted-syntax': [
+      'error',
+      'ForInStatement',
+      'LabeledStatement',
+      'WithStatement',
+    ],
   },
   parserOptions: {
     project: [
