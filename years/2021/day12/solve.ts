@@ -1,78 +1,53 @@
-interface Room {
-  name: string;
-  connections: Room[];
-}
+import { AbstractPathFinder, PathNode } from '@spenserj-aoc/utilities';
 
-type RoomList = Record<string, Room>;
+type RoomNode = PathNode & {
+  smallRoom: boolean;
+};
 
 export const parseInput = (input: string) => {
-  const rooms: RoomList = input
+  const lines = input
     .trim()
-    .split('\n')
-    .reduce((acc, next) => {
-      const [leftName, rightName] = next.split('-');
-      acc[leftName] ||= { name: leftName, connections: [] };
-      acc[rightName] ||= { name: rightName, connections: [] };
-      acc[leftName].connections.push(acc[rightName]);
-      acc[rightName].connections.push(acc[leftName]);
-      return acc;
-    }, {} as RoomList);
+    .split('\n');
+  const initialRooms = lines.flatMap((v) => v.split('-'))
+    .map((name): [string, RoomNode] => ([
+      name,
+      {
+        name,
+        connections: [],
+        smallRoom: name.toLowerCase() === name,
+      },
+    ]));
+  const rooms = new Map(initialRooms);
+  for (const line of lines) {
+    const [leftName, rightName] = line.split('-');
+    const left = rooms.get(leftName);
+    const right = rooms.get(rightName);
+    left.connections.push(right);
+    right.connections.push(left);
+  }
   return rooms;
 };
 
-abstract class AbstractPathWalker {
-  constructor(public rooms: RoomList) {}
-
-  findPaths(start: Room, end: Room): Room[][];
-  findPaths(currentPath: Room[], end: Room): Room[][];
-  findPaths(startOrPath: Room | Room[], end: Room): Room[][] {
-    const path = Array.isArray(startOrPath) ? startOrPath : [startOrPath];
-    const currentRoom = path[path.length - 1];
-    const result: Room[][] = [];
-    for (const next of currentRoom.connections) {
-      if (!this.isValidStep(path, next)) { continue; }
-      const newPath = path.concat(next);
-      if (next === end) {
-        result.push(newPath);
-      } else {
-        result.push(...this.findPaths(newPath, end));
-      }
-    }
-    return result;
-  }
-
-  abstract isValidStep(path: Room[], nextRoom: Room): boolean;
-
-  debugRooms() {
-    return Object.values(this.rooms)
-      .map((room) => `${room.name} -> ${room.connections.map((v) => v.name)}`);
-  }
-
-  printRooms() {
-    console.log(this.debugRooms());
-  }
-}
-
-class PathWalkerPart1 extends AbstractPathWalker {
-  isValidStep(path: Room[], nextRoom: Room) {
+class PathWalkerPart1 extends AbstractPathFinder<RoomNode> {
+  isValidStep(path: RoomNode[], nextRoom: RoomNode) {
     // Doubling back is allowed in big rooms
-    if (nextRoom.name.toLowerCase() !== nextRoom.name) { return true; }
+    if (!nextRoom.smallRoom) { return true; }
     return !path.includes(nextRoom);
   }
 }
 
-class PathWalkerPart2 extends PathWalkerPart1 {
-  isValidStep(path: Room[], nextRoom: Room) {
+class PathWalkerPart2 extends AbstractPathFinder<RoomNode> {
+  isValidStep(path: RoomNode[], nextRoom: RoomNode) {
     // Can't double back to the start
     if (nextRoom.name === 'start') { return false; }
     // Doubling back is allowed in big rooms
-    if (nextRoom.name.toLowerCase() !== nextRoom.name) { return true; }
+    if (!nextRoom.smallRoom) { return true; }
     // We can double back one small room twice, and other rooms once
     let hasDoubleSmall = false;
     const seenSmall: string[] = [];
     for (const nextSmall of path) {
       // Skip large rooms
-      if (nextSmall.name.toLowerCase() !== nextSmall.name) { continue; }
+      if (!nextSmall.smallRoom) { continue; }
       // If we haven't seen a double, check if this is a double
       hasDoubleSmall ||= seenSmall.includes(nextSmall.name);
       // Track that we've seen the room
@@ -87,12 +62,12 @@ class PathWalkerPart2 extends PathWalkerPart1 {
 
 export const part1 = (rawInput: string) => {
   const pathWalker = new PathWalkerPart1(parseInput(rawInput));
-  const paths = pathWalker.findPaths(pathWalker.rooms.start, pathWalker.rooms.end);
+  const paths = pathWalker.findPaths(pathWalker.nodes.get('start'), pathWalker.nodes.get('end'));
   return paths.length;
 };
 
 export const part2 = (rawInput: string) => {
   const pathWalker = new PathWalkerPart2(parseInput(rawInput));
-  const paths = pathWalker.findPaths(pathWalker.rooms.start, pathWalker.rooms.end);
+  const paths = pathWalker.findPaths(pathWalker.nodes.get('start'), pathWalker.nodes.get('end'));
   return paths.length;
 };

@@ -47,3 +47,4 @@ export { default as bisect } from './bisect';
 export * from './arrays';
 export { default as Grid } from './Grid';
 export * from './Grid';
+export * from './PathFinder';
