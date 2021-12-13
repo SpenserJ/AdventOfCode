@@ -4,8 +4,7 @@
   "packageManager": "yarn@3.1.0",
   "scripts": {
     "lint": "eslint src",
-    "start": "yarn ts-node-dev --respawn ./day$0/index.ts",
-    "test": "yarn jest --watch ./day$0/"
+    "test": "yarn jest --watch"
   },
   "author": "Spenser Jones <hello@spenserj.com>",
   "license": "MIT",

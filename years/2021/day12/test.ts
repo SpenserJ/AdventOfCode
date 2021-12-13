@@ -1,3 +1,4 @@
+import { loadRawInput } from '@spenserj-aoc/utilities';
 import { part1, part2 } from './solve';
 
 const examples = [
@@ -56,5 +57,12 @@ describe('2020/12/12', () => {
     test('Example 2', () => expect(part2(examples[1])).toEqual(103));
 
     test('Example 3', () => expect(part2(examples[2])).toEqual(3509));
+  });
+
+  describe('Solution', () => {
+    const input = loadRawInput(__dirname);
+    test('Part 2', () => {
+      expect(part2(input)).toEqual(144309);
+    });
   });
 });

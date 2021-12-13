@@ -1,35 +1,58 @@
 export interface PathNode {
   name: string;
-  connections: this[];
+  edges: this[];
 }
 
-export default abstract class AbstractPathFinder<TNode extends PathNode = PathNode> {
-  constructor(public nodes: Map<string, TNode>) {}
+export class Path<TNode extends PathNode = PathNode> {
+  public nodes: Readonly<TNode[]>;
 
-  findPaths(start: TNode, end: TNode): TNode[][];
-  findPaths(currentPath: TNode[], end: TNode): TNode[][];
-  findPaths(startOrPath: TNode | TNode[], end: TNode): TNode[][] {
-    const path = Array.isArray(startOrPath) ? startOrPath : [startOrPath];
-    const currentRoom = path[path.length - 1];
-    const result: TNode[][] = [];
-    for (const next of currentRoom.connections) {
-      if (!this.isValidStep(path, next)) { continue; }
-      const newPath = path.concat(next);
-      if (next === end) {
-        result.push(newPath);
-      } else {
-        result.push(...this.findPaths(newPath, end));
-      }
-    }
-    return result;
+  constructor(nodes: TNode[]) {
+    this.nodes = nodes;
   }
 
-  abstract isValidStep(path: TNode[], nextRoom: TNode): boolean;
+  public get lastNode(): TNode {
+    return this.nodes[this.nodes.length - 1];
+  }
+
+  public branch(node: TNode): Path<TNode> {
+    return new Path<TNode>(this.nodes.concat(node));
+  }
+}
+
+export default abstract class AbstractPathFinder<
+  TNode extends PathNode = PathNode,
+  TPath extends Path<TNode> = Path<TNode>,
+> {
+  constructor(public nodes: Map<string, TNode>) {}
+
+  abstract isValidStep(path: Path<TNode>, nextNode: TNode): boolean;
+
+  abstract recordCompletePath(path: TNode[]): void;
+
+  run(start: TPath, end: TNode): void {
+    const queue: Path<TNode>[] = [start];
+    let nextPath: Path<TNode>;
+    let circuitBreaker = 0;
+    // We use `pop` so that we're always taking the last/longest path and
+    // keeping the queue as short as possible
+    while (circuitBreaker < 500000 && (nextPath = queue.pop())) {
+      circuitBreaker += 1;
+      const currentNode = nextPath.lastNode;
+      for (let i = 0; i < currentNode.edges.length; i += 1) {
+        const next = currentNode.edges[i];
+        if (next === end) {
+          this.recordCompletePath(nextPath.nodes.concat(next));
+        } else if (this.isValidStep(nextPath, next)) {
+          queue.push(nextPath.branch(next));
+        }
+      }
+    }
+  }
 
   debugRooms() {
     const lines: string[] = [];
     for (const [name, value] of this.nodes) {
-      lines.push(`${name} -> ${value.connections.map((v) => v.name)}`);
+      lines.push(`${name} -> ${value.edges.map((v) => v.name)}`);
     }
     return lines.join('\n');
   }
