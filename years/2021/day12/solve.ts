@@ -1,4 +1,4 @@
-import { AbstractPathFinder, Path, PathNode } from '@spenserj-aoc/utilities';
+import { ExhaustivePathFinder, Path, PathNode } from '@spenserj-aoc/utilities';
 
 type RoomNode = PathNode & {
   smallRoom: boolean;
@@ -63,7 +63,7 @@ export const parseInput = (input: string) => {
   return rooms;
 };
 
-abstract class Day12PathFinder extends AbstractPathFinder<RoomNode, RoomPath> {
+abstract class Day12PathFinder extends ExhaustivePathFinder<RoomNode, RoomPath> {
   public validPaths = 0;
 
   recordCompletePath() {

@@ -47,4 +47,6 @@ export { default as bisect } from './bisect';
 export * from './arrays';
 export { default as Grid } from './Grid';
 export * from './Grid';
-export * from './PathFinder';
+export * from './ExhaustivePathFinder';
+export { default as DijkstraPathFinder } from './DijkstraPathFinder';
+export * from './DijkstraPathFinder';

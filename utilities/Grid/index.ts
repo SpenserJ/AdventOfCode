@@ -82,8 +82,19 @@ export default class Grid<T> {
     return result;
   }
 
-  flatten() {
-    return this.cells.map((row) => row.join('')).join('\n');
+  forEach(callbackFn: ((element: Cell<T>) => void)): void {
+    for (let y = 0; y < this.height; y += 1) {
+      for (let x = 0; x < this.width; x += 1) {
+        callbackFn(this.getCell(x, y));
+      }
+    }
+  }
+
+  flatten(mapCell?: ((row: T, index: number, arr: any) => any)) {
+    return this.cells.map((rawRow) => {
+      const row = mapCell ? rawRow.map(mapCell) : rawRow;
+      return row.join('');
+    }).join('\n');
   }
 
   print(): void {
