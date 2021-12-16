@@ -1,33 +1,33 @@
-import { sum } from '@spenserj-aoc/utilities';
+enum PacketTypes {
+  Sum,
+  Product,
+  Minimum,
+  Maximum,
+  Literal,
+  GreaterThan,
+  LessThan,
+  EqualTo,
+}
 
 interface BasePacket {
   version: number;
-  type: number;
-  value: number;
   bits: string;
 }
-type OperatorPacket = BasePacket & { subpackets: Packet[] };
-
-type SumPacket = OperatorPacket & { type: 0 };
-type ProductPacket = OperatorPacket & { type: 1 };
-type MinimumPacket = OperatorPacket & { type: 2 };
-type MaximumPacket = OperatorPacket & { type: 3 };
-type LiteralPacket = BasePacket & { type: 4 };
-type GreaterThanPacket = OperatorPacket & { type: 5 };
-type LessThanPacket = OperatorPacket & { type: 6 };
-type EqualToPacket = OperatorPacket & { type: 7 };
 
 type Packet =
-  SumPacket
-  | ProductPacket
-  | MinimumPacket
-  | MaximumPacket
-  | LiteralPacket
-  | GreaterThanPacket
-  | LessThanPacket
-  | EqualToPacket;
+  (BasePacket & { value: PacketTypes.Literal })
+  | (BasePacket & { value: Exclude<PacketTypes, PacketTypes.Literal>, subpackets: Packet[] });
 
-type PacketType = Packet['type'];
+// eslint-disable-next-line max-len
+const packetOperations: Record<Exclude<PacketTypes, PacketTypes.Literal>, (subpackets: Packet[]) => number> = {
+  [PacketTypes.Sum]: (subpackets) => subpackets.reduce((acc, next) => acc + next.value, 0),
+  [PacketTypes.Product]: (subpackets) => subpackets.reduce((acc, next) => acc * next.value, 1),
+  [PacketTypes.Minimum]: (subpackets) => Math.min(...subpackets.map((v) => v.value)),
+  [PacketTypes.Maximum]: (subpackets) => Math.max(...subpackets.map((v) => v.value)),
+  [PacketTypes.GreaterThan]: (subpackets) => Number(subpackets[0].value > subpackets[1].value),
+  [PacketTypes.LessThan]: (subpackets) => Number(subpackets[0].value < subpackets[1].value),
+  [PacketTypes.EqualTo]: (subpackets) => Number(subpackets[0].value === subpackets[1].value),
+};
 
 export const hex2bin = (input: string) => input
   .split('')
@@ -47,7 +47,7 @@ export const parsePacket = (binaryInput: string): Packet => {
   };
 
   const version = bin2dec(eat(3));
-  const type = bin2dec(eat(3)) as PacketType;
+  const type = bin2dec(eat(3)) as PacketTypes;
   const packet = (() => {
     if (type === 4) {
       let endOfLiteral = false;
@@ -57,19 +57,18 @@ export const parsePacket = (binaryInput: string): Packet => {
         endOfLiteral = literalChunk[0] === '0';
         literalBinary = `${literalBinary}${literalChunk.substring(1)}`;
       }
-      const value = bin2dec(literalBinary);
       return {
         version,
         type,
-        value,
+        value: bin2dec(literalBinary),
         bits: packetBits,
       };
     }
 
     const lengthType = Number(eat(1));
     const subpackets: Packet[] = [];
-    // The length of the subpacket in bits
     if (lengthType === 0) {
+      // The length of the subpacket in bits
       const subpacketsBits = bin2dec(eat(15));
       const targetBit = i + subpacketsBits;
       while (i < targetBit) {
@@ -78,6 +77,7 @@ export const parsePacket = (binaryInput: string): Packet => {
         subpackets.push(subpacket);
       }
     } else {
+      // The number of subpackets to parse
       const numSubpackets = bin2dec(eat(11));
       for (let s = 0; s < numSubpackets; s += 1) {
         const subpacket = parsePacket(binaryInput.substring(i));
@@ -86,42 +86,13 @@ export const parsePacket = (binaryInput: string): Packet => {
       }
     }
 
-    const packetBase = {
+    return {
       version,
       type,
-      value: 0,
       subpackets,
+      value: packetOperations[type](subpackets),
       bits: packetBits,
     };
-    if (type === 0) {
-      const value = sum(subpackets.map((v) => v.value));
-      return { ...packetBase, value } as SumPacket;
-    }
-    if (type === 1) {
-      const value = subpackets.reduce((acc, next) => acc * next.value, 1);
-      return { ...packetBase, value } as ProductPacket;
-    }
-    if (type === 2) {
-      const value = Math.min(...subpackets.map((v) => v.value));
-      return { ...packetBase, value } as MinimumPacket;
-    }
-    if (type === 3) {
-      const value = Math.max(...subpackets.map((v) => v.value));
-      return { ...packetBase, value } as MaximumPacket;
-    }
-    if (type === 5) {
-      const value = Number(subpackets[0].value > subpackets[1].value);
-      return { ...packetBase, value } as GreaterThanPacket;
-    }
-    if (type === 6) {
-      const value = Number(subpackets[0].value < subpackets[1].value);
-      return { ...packetBase, value } as GreaterThanPacket;
-    }
-    if (type === 7) {
-      const value = Number(subpackets[0].value === subpackets[1].value);
-      return { ...packetBase, value } as GreaterThanPacket;
-    }
-    throw new Error(`Couldn't process packet of type: ${type}`);
   })();
 
   return packet;
@@ -136,7 +107,7 @@ export const part1 = (rawInput: string) => {
       .flatMap((subpacket) => digForVersions(subpacket))
       .concat(inPacket.version)
   );
-  return sum(digForVersions(packet));
+  return digForVersions(packet).reduce((acc, next) => acc + next, 0);
 };
 
 export const part2 = (rawInput: string) => parseInput(rawInput).value;
