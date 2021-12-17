@@ -50,3 +50,4 @@ export * from './Grid';
 export * from './ExhaustivePathFinder';
 export { default as DijkstraPathFinder } from './DijkstraPathFinder';
 export * from './DijkstraPathFinder';
+export * from './Heaps';
