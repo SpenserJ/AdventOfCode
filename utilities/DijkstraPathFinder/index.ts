@@ -1,3 +1,5 @@
+import { BucketQueue } from '../PriorityQueues';
+
 export interface CostNode {
   cost: number;
   edges: this[];
@@ -43,21 +45,23 @@ export default class DijkstraPathFinder<T extends CostNode = CostNode> {
     const startNode = this.nodes.get(start);
     const endNode = this.nodes.get(end);
 
-    let currNode: PathNode<T>;
-    const queue: PathNode<T>[] = [startNode];
-
     startNode.tentativeCost = startNode.value.cost;
 
-    while (currNode = this.pickNextNode(queue)) {
+    let currNode: PathNode<T>;
+    const queue = new BucketQueue<PathNode<T>>();
+    queue.insert(startNode, startNode.tentativeCost);
+
+    while (currNode = queue.pull()) {
       for (let i = 0; i < currNode.value.edges.length; i += 1) {
         const edge = currNode.value.edges[i];
         const edgeNode = this.nodes.get(edge);
         const valueThroughNode = currNode.tentativeCost + edge.cost;
         if (edgeNode.tentativeCost > valueThroughNode) {
+          queue.remove(edgeNode, edgeNode.tentativeCost);
           edgeNode.tentativeCost = valueThroughNode;
           edgeNode.source = currNode;
           if (valueThroughNode <= endNode.tentativeCost) {
-            queue.push(edgeNode);
+            queue.insert(edgeNode, edgeNode.tentativeCost);
           }
         }
         if (edge === end) {
