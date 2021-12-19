@@ -43,6 +43,14 @@ export const binaryPartition = (min: number, max: number, input: boolean[]): [nu
 
 export const sum = (input: number[]) => input.reduce((acc, next) => (acc + next), 0);
 
+/**
+ * The termial is the sum of all positive integers less than or equal to n.
+ *
+ * termial(5) = 5 + 4 + 3 + 2 + 1
+ * @returns The termial of n
+ */
+export const termial = (n: number) => (n * (n + 1)) / 2;
+
 export { default as bisect } from './bisect';
 export * from './arrays';
 export { default as Grid } from './Grid';
