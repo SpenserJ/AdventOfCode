@@ -51,6 +51,11 @@ export const sum = (input: number[]) => input.reduce((acc, next) => (acc + next)
  */
 export const termial = (n: number) => (n * (n + 1)) / 2;
 
+export const getDebugLog = (dir: string, name = 'debug.log') => {
+  const stream = fs.createWriteStream(path.resolve(dir, name));
+  return (line: string) => stream.write(`${line}\n`);
+};
+
 export { default as bisect } from './bisect';
 export * from './arrays';
 export { default as Grid } from './Grid';
