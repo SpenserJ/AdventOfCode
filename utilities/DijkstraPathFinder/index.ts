@@ -1,7 +1,7 @@
 import { BucketQueue } from '../PriorityQueues';
 
 export interface CostNode {
-  cost: number;
+  cost: number | ((source: this) => number);
   edges: this[];
 }
 
@@ -15,15 +15,21 @@ interface PathNode<T extends CostNode> {
 export default class DijkstraPathFinder<T extends CostNode = CostNode> {
   protected nodes: Map<T, PathNode<T>> = new Map();
 
+  public circuitBreaker: false | number = false;
+
   constructor(nodes: T[]) {
     for (let i = 0; i < nodes.length; i += 1) {
-      this.nodes.set(nodes[i], {
-        tentativeCost: Number.POSITIVE_INFINITY,
-        source: undefined,
-        visited: false,
-        value: nodes[i],
-      });
+      this.addEdgeNode(nodes[i]);
     }
+  }
+
+  private addEdgeNode(node: T): void {
+    this.nodes.set(node, {
+      tentativeCost: Number.POSITIVE_INFINITY,
+      source: undefined,
+      visited: false,
+      value: node,
+    });
   }
 
   pickNextNode(queue: PathNode<T>[]): PathNode<T> {
@@ -45,17 +51,23 @@ export default class DijkstraPathFinder<T extends CostNode = CostNode> {
     const startNode = this.nodes.get(start);
     const endNode = this.nodes.get(end);
 
-    startNode.tentativeCost = startNode.value.cost;
+    startNode.tentativeCost = (typeof startNode.value.cost === 'number')
+      ? startNode.value.cost
+      : startNode.value.cost(null);
 
     let currNode: PathNode<T>;
     const queue = new BucketQueue<PathNode<T>>();
     queue.insert(startNode, startNode.tentativeCost);
 
+    let circuitBreaker = 0;
+
     while (currNode = queue.pull()) {
       for (let i = 0; i < currNode.value.edges.length; i += 1) {
         const edge = currNode.value.edges[i];
+        if (!this.nodes.has(edge)) { this.addEdgeNode(edge); }
         const edgeNode = this.nodes.get(edge);
-        const valueThroughNode = currNode.tentativeCost + edge.cost;
+        const edgeCost = (typeof edge.cost === 'number') ? edge.cost : edge.cost(currNode.value);
+        const valueThroughNode = currNode.tentativeCost + edgeCost;
         if (edgeNode.tentativeCost > valueThroughNode) {
           queue.remove(edgeNode, edgeNode.tentativeCost);
           edgeNode.tentativeCost = valueThroughNode;
@@ -70,6 +82,10 @@ export default class DijkstraPathFinder<T extends CostNode = CostNode> {
         }
       }
       currNode.visited = true;
+      if (this.circuitBreaker) {
+        circuitBreaker += 1;
+        if (circuitBreaker > this.circuitBreaker) { throw new Error('Circuit breaker tripped'); }
+      }
     }
 
     // Calculate the path in reverse
