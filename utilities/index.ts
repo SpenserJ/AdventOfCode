@@ -65,3 +65,4 @@ export { default as DijkstraPathFinder } from './DijkstraPathFinder';
 export * from './DijkstraPathFinder';
 export * from './Heaps';
 export * from './PriorityQueues';
+export { default as Profiler } from './Profiler';
