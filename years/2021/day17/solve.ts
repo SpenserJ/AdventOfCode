@@ -1,12 +1,5 @@
-import { termial } from '@spenserj-aoc/utilities';
-
-export const parseInput = (rawInput: string): [number, number, number, number] => {
-  const [, x1, x2, y1, y2] = rawInput.match(/x=(-?\d+)\.\.(-?\d+), y=(-?\d+)\.\.(-?\d+)/);
-  return [
-    ...[x1, x2].map((v) => Number(v)).sort((a, b) => a - b),
-    ...[y1, y2].map((v) => Number(v)).sort((a, b) => a - b),
-  ] as [number, number, number, number];
-};
+import { termial } from '@spenserj-aoc/utilities/math';
+import BaseDay from '@spenserj-aoc/utilities/BaseDay';
 
 //    5, 4,  3,  2,  1,  0, -1, -2, -3, -4, -5, -6
 // 0, 5, 9, 12, 14, 15, 15, 14, 12,  9,  5,  0, -6
@@ -28,136 +21,79 @@ const maxY = (targetY: number) => {
   return termial(startingVelocity);
 };
 
-export const part1 = (rawInput: string) => {
-  const coords = parseInput(rawInput);
-  const targetY = coords[2];
-  return maxY(targetY);
-};
+export interface Day17State {
+  xRange: [number, number];
+  yRange: [number, number];
+  shotsP2?: Set<string>;
+}
 
-/**
- * * Key: The steps required
- * * Value: The velocities that will reach the target
- */
-type StepVelocity = Map<number, number[]>;
-
-export const part2 = (rawInput: string) => {
-  const [x1, x2, y1, y2] = parseInput(rawInput);
-
-  const yRangeForStep = (step) => ([
-    Math.ceil((termial(step - 1) + y1) / step),
-    Math.floor((termial(step - 1) + y2) / step),
-  ]);
-
-  // Find all of the velocities that will land in the zone, whether through multiple
-  // steps or in a single step.
-  // Range: 5-10
-  // * 10=10
-  // * 9=9
-  // * ...
-  // * 5=5
-  // * 4+3=7, 4+3+2=9, 4+3+2+1
-  // * 3+2=5, 3+2+1=6
-  // Initial velocities from 3-10 will all land in the range. Anything lower undershoots
-  // and anything higher overshoots.
-  // We can use the termial to quickly calculate the end point if all steps are taken, and
-  // walk backward by however many steps are needed to avoid overshooting
-
-  const velocityEndPoints: number[] = [0];
-  let lastEnd = 0;
-  let v = 0;
-  // TODO: Do we need to check this many velocities?
-  while (lastEnd < x2 || v <= x2) {
-    v += 1;
-    lastEnd = termial(v);
-    velocityEndPoints[v] = lastEnd;
+export default class Day17 extends BaseDay<Day17State> {
+  parseInput(rawInput: string): Day17State {
+    const [, x1, x2, y1, y2] = rawInput.match(/x=(-?\d+)\.\.(-?\d+), y=(-?\d+)\.\.(-?\d+)/);
+    return {
+      xRange: [x1, x2].map((v) => Number(v)).sort((a, b) => a - b),
+      yRange: [y1, y2].map((v) => Number(v)).sort((a, b) => a - b),
+    } as Day17State;
   }
 
-  const guaranteedVelocityX: StepVelocity = new Map();
-  for (v = 1; v < velocityEndPoints.length; v += 1) {
-    const fullStepEnd = velocityEndPoints[v];
-    // Check if we can cut any steps off the end to land back in the range.
-    // We start with vCut=0, which will check the exact end
-    for (let vCut = 0; vCut < v; vCut += 1) {
-      const partialStepEnd = fullStepEnd - velocityEndPoints[vCut];
-      // If we fall short, break out of the loop
-      if (partialStepEnd < x1) { break; }
-      // If we fall within range, mark it as valid
-      if (partialStepEnd <= x2) {
-        if (!guaranteedVelocityX.has(v - vCut)) { guaranteedVelocityX.set(v - vCut, []); }
-        guaranteedVelocityX.get(v - vCut).push(v);
+  step() {}
+
+  part1(): number {
+    return maxY(this.state.yRange[0]);
+  }
+
+  part2(): number {
+    const [x1, x2] = this.state.xRange;
+    const [y1, y2] = this.state.yRange;
+
+    const xOptions: Record<number, number[]> = {};
+    const xTrickshots: number[] = [];
+    this.state.shotsP2 = new Set();
+    for (let i = 1; i <= x2; i += 1) {
+      let x = 0;
+      let steps = 0;
+      for (let v = i; v >= 0; v -= 1) {
+        x += v;
+        steps += 1;
+        if (x1 <= x && x <= x2) {
+          xOptions[steps] ||= [];
+          xOptions[steps].push(i);
+          if (v === 0) { xTrickshots.push(i); }
+        }
+        if (x > x2) { break; }
       }
     }
-  }
 
-  // Once we know how many steps we are dealing with, we can calculate the range of
-  // y velocities that would land in time
-  const guaranteedVelocityY: StepVelocity = new Map();
-  for (const step of guaranteedVelocityX.keys()) {
-    // 1 step:  -5 through -10: y1/step -> y2/step
-    // 2 steps: -2 (-2-3=-5), -3 (-3-4=-7), -4 (-4-5=-9): y1/step (2.5) -> y2/step (5)
-    // 3 steps: -1 (-1-2-3=-6), -2 (-2-3-4=-9): y1/step (1.6) -> y2/step (3.333)
-    // 4 steps: 0 (0-1-2-3=-6), -1 (-1-2-3-4=-10): y1/step (1.25) -> y2/step (2.5) ???
-    // 5 steps: 1 (1-0-1-2-3=-5), 0 (0-1-2-3-4=-10): y1+6 -> y2+10 ???
-    // 6 steps: 1 (1-0-1-2-3-4=-9)
-    // 7 steps: 2 (2+1-0-1-2-3-4=-7)
-    // if vy<0 && steps=2: y=termial(-vy-1)-termial(-vy+(steps-1))
-    // if vy<0 && steps=3: y=termial(-vy-1)-termial(-vy+(steps-1))
-    // if vy<0 && steps=4: y=termial(-vy-1)-termial(-vy+(steps-1))
-    // y=termial(-vy-1)-termial(-vy+(steps-1))
-    // if vy=0: y=-termial(steps-1)
-    // if vy>0: vy+1 steps cancel out, so y=-vy
-    // If vx=steps: Trick shot unlocked
-    // TODO: Add positive values
-
-    // Going to change by -termial(steps-1) over the run
-    // Initial vy/steps=y1+termial(steps-1)
-    const [vyMin, vyMax] = yRangeForStep(step);
-    for (let vy = vyMin; vy <= vyMax; vy += 1) {
-      if (!guaranteedVelocityY.has(step)) { guaranteedVelocityY.set(step, []); }
-      guaranteedVelocityY.get(step).push(vy);
-    }
-    // TODO: Add trickshots
-  }
-
-  const result = new Set<string>();
-  for (const [step, xVelocities] of guaranteedVelocityX) {
-    const yVelocities = guaranteedVelocityY.get(step) || [];
-    for (const vx of xVelocities) {
-      for (const vy of yVelocities) {
-        result.add(`${vx},${vy}`);
-      }
-
-      // Trickshot time
-      if (vx === step) {
-        // 6,2 -> 11,3 -> 15,3 -> 18,2 -> 20,1 -> 21,0 -> 21,-1 -> 21,-3 -> 21,-6
-        // Velocities that will reach y=0 again by the last step
-        for (let vy = 0; vy > y1; vy -= 1) {
-          let vy2 = vy;
-          let y = vy2;
-          while (y > y1) {
-            if (y1 <= y && y <= y2) {
-              result.add(`${vx},${Math.abs(vy2 + 1)}`);
+    let i = y1;
+    while (i < Math.abs(y1)) {
+      let y = 0;
+      let steps = 0;
+      for (let v = i; v >= y1; v -= 1) {
+        y += v;
+        steps += 1;
+        if (y1 <= y && y <= y2) {
+          const withX = xOptions[steps] || [];
+          for (const x of xTrickshots) {
+            if (i >= 0) {
+              const oldSize = this.state.shotsP2.size;
+              this.state.shotsP2.add(`${x},${i}`);
+              if (this.state.shotsP2.size !== oldSize) {
+                this.render.update('state', this.state);
+              }
             }
-            vy2 -= 1;
-            y += vy2;
+          }
+          for (const x of withX) {
+            const oldSize = this.state.shotsP2.size;
+            this.state.shotsP2.add(`${x},${i}`);
+            if (this.state.shotsP2.size !== oldSize) {
+              this.render.update('state', this.state);
+            }
           }
         }
-        // Velocities
-        /*
-        let vy = 1;
-        while (-termial(vy) >= y1) {
-          result.add(`${vx},${Math.abs(vy)}`);
-          vy += 1;
-        }
-        */
       }
+      i += 1;
     }
+
+    return this.state.shotsP2.size;
   }
-
-  //console.log('x', guaranteedVelocityX);
-  //console.log('y', guaranteedVelocityY);
-
-  console.log(result.size);
-  return [...result];
-  //return result.size;
 }

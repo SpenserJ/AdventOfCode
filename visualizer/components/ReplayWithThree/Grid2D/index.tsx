@@ -9,9 +9,10 @@ interface Grid2DProps {
   size: ReplayViewport;
   defaultColor: Color;
   getColor: (x: number, y: number) => Color;
+  invertY?: boolean;
 }
 
-const Grid2D = ({ size, defaultColor, getColor }: Grid2DProps) => {
+const Grid2D = ({ size, defaultColor, getColor, invertY = false }: Grid2DProps) => {
   const { width, height, minX, maxX, minY, maxY } = useReplayViewport(size);
   const maxSize = width * height;
 
@@ -24,7 +25,8 @@ const Grid2D = ({ size, defaultColor, getColor }: Grid2DProps) => {
     for (let x = minX; x < maxX; x++) {
       for (let y = minY; y < maxY; y++) {
         i += 1;
-        tempObject.position.set(x + 0.5, -y + 0.5, -1);
+        const posY = invertY ? minY + (maxY - y) : y;
+        tempObject.position.set(x, posY, 0);
         tempObject.updateMatrix()
         instance.current!.setMatrixAt(i, tempObject.matrix)
       }
@@ -48,7 +50,7 @@ const Grid2D = ({ size, defaultColor, getColor }: Grid2DProps) => {
     <>
       <ambientLight />
       <Camera.Orthographic {...size} />
-      <instancedMesh ref={instance} args={[undefined, undefined, width * height]}>
+      <instancedMesh ref={instance} args={[undefined, undefined, width * height]} position={[0.5, -0.5, -1]}>
         <boxBufferGeometry attach="geometry" args={[1, 1, 1]}>
           <instancedBufferAttribute attachObject={['attributes', 'color']} args={[colorArray, 1]} />
         </boxBufferGeometry>

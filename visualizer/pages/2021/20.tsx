@@ -152,6 +152,7 @@ const Grid = ({ state, lastFrame }: GridProps) => {
         return colors[Number(!!spot)];
       }}
       size={cameraState}
+      invertY
     />
   )
 }

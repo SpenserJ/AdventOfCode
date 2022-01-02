@@ -18,8 +18,8 @@ export const useReplayViewport = (viewport: ReplayViewport) => {
   const width = maxX - minX;
   const height = maxY - minY;
   const largest = Math.max(width, height);
-  const cenX = Math.floor((width / 2) + minX);
-  const cenY = -Math.floor((height / 2) + minY);
+  const cenX = Math.floor(minX / 2) + Math.floor(maxX / 2);
+  const cenY = Math.floor(minY / 2) + Math.floor(maxY / 2);
   return useMemo(() => ({
     minX,
     maxX,

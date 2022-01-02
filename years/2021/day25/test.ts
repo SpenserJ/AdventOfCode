@@ -1,8 +1,6 @@
 /* eslint-disable object-curly-newline */
 import { loadRawInput } from '@spenserj-aoc/utilities';
-import Solver, {
-  renderSeaFloor,
-} from './solve';
+import Solver, { renderSeaFloor } from './solve';
 
 const oneLine = `
 ...>>>>>...

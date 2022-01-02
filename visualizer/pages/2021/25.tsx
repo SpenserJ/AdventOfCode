@@ -186,6 +186,7 @@ const Grid = ({ state }: GridProps) => {
         return colors[spot];
       }}
       size={cameraState}
+      invertY
     />
   )
 }
