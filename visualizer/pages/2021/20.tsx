@@ -1,10 +1,11 @@
-import React, { useLayoutEffect, useMemo, useRef } from 'react'
-import { MeshProps, useThree } from '@react-three/fiber'
-import { Color, InstancedMesh, Object3D } from 'three';
+import React from 'react'
+import { MeshProps } from '@react-three/fiber'
+import { Color } from 'three';
 import type { NextPage } from 'next'
 import Head from 'next/head'
-import Day25, { State } from '@spenserj-aoc/2021/day20/solve';
-import ReplayWithThree, { Camera, GridHelper } from '../../components/ReplayWithThree';
+import Day20, { State } from '@spenserj-aoc/2021/day20/solve';
+import ReplayWithThree from '../../components/ReplayWithThree';
+import Grid2D from '../../components/ReplayWithThree/Grid2D';
 
 const input1 = `
 ..#.#..#####.#.#.#.###.##.....###.##.#..###.####..#####..#....#..#..##..###..######.###...####..#..#####..##..#.#####...##.#.#..#.##..#.#......#.###.######.###.####...#.##.##..#..#..#####.....#.#....###..#.##......#.....#..#..#..##..#...##.######.####.####.#.#...#.......#..#.#.#...####.##.#......#..#...##.#.##..#...##.#.##..###.#......#.#.......#.#.#.####.###.##...#.....####.#..#..#.##.#....##..#.####....##...##..#...#......#.#.......#.......##..####..#...#.#.#...##..#.#..###..#####........#..####......#..#';
@@ -128,52 +129,14 @@ interface GridProps extends MeshProps {
   lastFrame: State | null;
 }
 
-const realSolver = new Day25(input);
+const realSolver = new Day20(input);
 
-const tempObject = new Object3D();
 const colors = [
   new Color('black'),
   new Color('orange'),
 ] as const;
 
 const Grid = ({ state, lastFrame }: GridProps) => {
-  const height = !lastFrame ? 0 : lastFrame.maxY + Math.abs(lastFrame.minY);
-  const width = !lastFrame ? 0 : lastFrame.maxX + Math.abs(lastFrame.minX);
-  const maxSize = width * height;
-
-  const { invalidate, camera, viewport, scene } = useThree();
-  console.log(scene);
-  const instance = useRef<InstancedMesh>();
-  const colorArray = useMemo(() => Float32Array.from(new Array(maxSize).fill(colors[1])), [])
-
-  useLayoutEffect(() => {
-    if (!lastFrame) { return; }
-    let i = 0;
-    for (let x = lastFrame.minX; x < lastFrame.maxX; x++) {
-      for (let y = lastFrame.minY; y < lastFrame.maxY; y++) {
-        const id = i++
-        tempObject.position.set(x + 0.5, -y + 0.5, -1);
-        tempObject.updateMatrix()
-        instance.current!.setMatrixAt(id, tempObject.matrix)
-      }
-    }
-    instance.current!.instanceMatrix.needsUpdate = true
-  }, [maxSize, lastFrame]);
-
-  useLayoutEffect(() => {
-    if (!lastFrame || !state) { return; }
-    let i = 0;
-    for (let x = lastFrame.minX; x < lastFrame.maxX; x += 1) {
-        for (let y = lastFrame.minY; y < lastFrame.maxY; y += 1) {
-        const spot = state.data.get(getKey(x, y));
-        instance.current!.setColorAt(i, colors[Number(!!spot)]);
-        i += 1;
-      }
-    }
-    instance.current!.instanceColor!.needsUpdate = true;
-    invalidate();
-  }, [lastFrame, state]);
-
   const cameraState = {
     minX: lastFrame?.minX || 0,
     maxX: lastFrame?.maxX || 0,
@@ -182,17 +145,15 @@ const Grid = ({ state, lastFrame }: GridProps) => {
   };
 
   return (
-    <>
-      <ambientLight />
-      <Camera.Orthographic {...cameraState} />
-      <instancedMesh ref={instance} args={[undefined, undefined, width * height]}>
-        <boxBufferGeometry attach="geometry" args={[1, 1, 1]}>
-          <instancedBufferAttribute attachObject={['attributes', 'color']} args={[colorArray, 1]} />
-        </boxBufferGeometry>
-      </instancedMesh>
-      <GridHelper {...cameraState} />
-    </>
-  );
+    <Grid2D
+      defaultColor={colors[0]}
+      getColor={(x, y) => {
+        const spot = state!.data.get(getKey(x, y));
+        return colors[Number(!!spot)];
+      }}
+      size={cameraState}
+    />
+  )
 }
 
 const Year2021: NextPage = () => (

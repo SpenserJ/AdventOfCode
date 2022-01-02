@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
 import BaseDay from '@spenserj-aoc/utilities/BaseDay';
+import styled from 'styled-components';
 
 export * as Camera from './Camera';
 export { default as GridHelper } from './GridHelper';
@@ -50,6 +51,19 @@ const useSolverReplay = <T extends BaseDay<any>>(solverInstance: T) => {
   };
 };
 
+const ReplayWithThreeContainer = styled.div`
+  display: flex;
+`;
+
+const CanvasContainer = styled.div`
+  height: 80vh;
+  flex-grow: 1;
+`;
+
+const ReplayListContainer = styled.div`
+  height: 80vh;
+`;
+
 interface ReplayWithThreeProps {
   solveClass: BaseDay<any>;
   render: React.ElementType;
@@ -65,20 +79,22 @@ const ReplayWithThree = ({ solveClass, render: RenderComponent }: ReplayWithThre
   }, [setNextFrame]);
 
   return (
-    <>
-      <div style={{ width: 500, height: 500, background: 'black' }}>
+    <ReplayWithThreeContainer>
+      <CanvasContainer>
         <Canvas frameloop="demand">
           <RenderComponent state={currentFrame} lastFrame={lastFrame} />
         </Canvas>
-      </div>
-      <ul>
-        {allFrames?.map((v, i) => (
-          <li key={i} style={{ background: i === currentFrameIndex ? 'wheat' : 'white' }} onClick={() => setFrame(i)}>
-            {JSON.stringify(v.labels)}
-          </li>
-        ))}
-      </ul>
-    </>
+      </CanvasContainer>
+      <ReplayListContainer>
+        <ul>
+          {allFrames?.map((v, i) => (
+            <li key={i} style={{ background: i === currentFrameIndex ? 'wheat' : 'white' }} onClick={() => setFrame(i)}>
+              {JSON.stringify(v.labels)}
+            </li>
+          ))}
+        </ul>
+      </ReplayListContainer>
+    </ReplayWithThreeContainer>
   )
 }
 

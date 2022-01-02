@@ -1,11 +1,11 @@
-import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { Canvas, MeshProps, useFrame, useThree } from '@react-three/fiber'
-import { Color, InstancedMesh, Object3D, OrthographicCamera } from 'three';
+import React from 'react'
+import { MeshProps } from '@react-three/fiber'
+import { Color } from 'three';
 import type { NextPage } from 'next'
 import Head from 'next/head'
-import Day25, { State, Spot, renderSeaFloor } from '@spenserj-aoc/2021/day25/solve';
-import BaseDay from '@spenserj-aoc/utilities/BaseDay';
-import ReplayWithThree, { Camera, GridHelper } from '../../components/ReplayWithThree';
+import Day25, { State } from '@spenserj-aoc/2021/day25/solve';
+import ReplayWithThree from '../../components/ReplayWithThree';
+import Grid2D from '../../components/ReplayWithThree/Grid2D';
 
 const input1 = `
 .>vv....vv>.v.vv....v>vv>.v>..vv.>.v...v...>v>v.>.>.>..>..>.>v...>>v.v>...vv.v.>.>.vv.vv.v...v.>vvv>>.>...v>..>.>..>v.>.>.v.>...>.>.v..v.>v
@@ -166,7 +166,6 @@ interface GridProps extends MeshProps {
 
 const realSolver = new Day25(input);
 
-const tempObject = new Object3D();
 const colors = {
   '>': new Color('orange'),
   'v': new Color('blue'),
@@ -174,55 +173,21 @@ const colors = {
 } as const;
 
 const Grid = ({ state }: GridProps) => {
-  const height = !state ? 0 : state.floor.length;
-  const width = !state ? 0 : state.floor[0].length;
-  const maxSize = width * height;
-
-  const { invalidate, camera } = useThree();
-  const instance = useRef<InstancedMesh>();
-  const colorArray = useMemo(() => Float32Array.from(new Array(maxSize).fill(colors['.'])), [])
-
-  useLayoutEffect(() => {
-    let i = 0;
-    for (let x = 0; x < width; x++) {
-      for (let y = 0; y < height; y++) {
-        const id = i++
-        tempObject.position.set(x + 0.5, -y + 0.5, -1);
-        tempObject.updateMatrix()
-        instance.current!.setMatrixAt(id, tempObject.matrix)
-      }
-    }
-    instance.current!.instanceMatrix.needsUpdate = true
-  }, [maxSize]);
-
-  useLayoutEffect(() => {
-    if (!state) { return; }
-    let i = 0;
-    for (let x = 0; x < width; x += 1) {
-        for (let y = 0; y < height; y += 1) {
-        const spot = state.floor[y][x];
-        instance.current!.setColorAt(i, colors[spot]);
-        i += 1;
-      }
-    }
-    instance.current!.instanceColor!.needsUpdate = true;
-    invalidate();
-  }, [state]);
-
-  if (!state) { return null; }
+  const cameraState = {
+    height: !state ? 0 : state.floor.length,
+    width: !state ? 0 : state.floor[0].length,
+  };
 
   return (
-    <>
-      <ambientLight />
-      <Camera.Orthographic width={width} height={height} />
-      <instancedMesh ref={instance} args={[undefined, undefined, width * height]}>
-        <boxBufferGeometry attach="geometry" args={[1, 1, 1]}>
-          <instancedBufferAttribute attachObject={['attributes', 'color']} args={[colorArray, 1]} />
-        </boxBufferGeometry>
-      </instancedMesh>
-      <GridHelper width={width} height={height} />
-    </>
-  );
+    <Grid2D
+      defaultColor={colors['.']}
+      getColor={(x, y) => {
+        const spot = state!.floor[y][x];
+        return colors[spot];
+      }}
+      size={cameraState}
+    />
+  )
 }
 
 const Year2021: NextPage = () => (

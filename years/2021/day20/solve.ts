@@ -53,7 +53,7 @@ export const renderState = (state: State): string => {
   return lines.join('\n');
 };
 
-export default class Day25 extends BaseDay<State> {
+export default class Day20 extends BaseDay<State> {
   parseInput(rawInput: string): State {
     const [algorithm, rawData] = rawInput.trim().split('\n\n');
     let width = 0;
