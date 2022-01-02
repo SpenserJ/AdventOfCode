@@ -1,7 +1,8 @@
 {
   "workspaces": [
     "years/*",
-    "utilities"
+    "utilities",
+    "visualizer"
   ],
   "private": true,
   "name": "adventofcode",

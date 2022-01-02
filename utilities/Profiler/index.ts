@@ -1,18 +1,23 @@
 type RecordedTimes<T = number> = Record<string, T>;
 
+const getNow = () => {
+  if (typeof process.hrtime !== 'undefined') { return process.hrtime.bigint(); }
+  return BigInt(Math.trunc(performance.now() * 1_000_000));
+};
+
 export default class Profiler {
   private times: RecordedTimes<number[]> = {};
 
-  private inProgress: RecordedTimes = {};
+  private inProgress: RecordedTimes<bigint> = {};
 
   public start(name: string): void {
     if (this.inProgress[name]) { throw new Error(`Profiler already started for ${name}`); }
-    this.inProgress[name] = performance.now();
+    this.inProgress[name] = getNow();
   }
 
   public stop(name: string): void {
     if (!this.inProgress[name]) { throw new Error(`Profiler wasn't started for ${name}`); }
-    const time = performance.now() - this.inProgress[name];
+    const time = Number(getNow() - this.inProgress[name]);
     this.inProgress[name] = undefined;
     this.times[name] ||= [];
     this.times[name].push(time);
@@ -20,7 +25,7 @@ export default class Profiler {
 
   public totals(): Record<string, number> {
     return Object.entries(this.times).reduce((acc, next) => {
-      acc[next[0]] = next[1].reduce((sum, v) => (sum + v), 0);
+      acc[next[0]] = next[1].reduce((sum, v) => (sum + v), 0) / 1_000_000;
       return acc;
     }, {} as RecordedTimes);
   }

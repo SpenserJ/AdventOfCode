@@ -1,0 +1,85 @@
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { Canvas } from '@react-three/fiber'
+import BaseDay from '@spenserj-aoc/utilities/BaseDay';
+
+export * as Camera from './Camera';
+export { default as GridHelper } from './GridHelper';
+export * from './useReplayViewport';
+
+const useSolver = <T extends BaseDay<any>>(solverInstance: T) => {
+  const [state, setState] = useState<typeof solverInstance["state"]>(solverInstance.state);
+  return useMemo(() => ({
+    trackStep: () => {
+      solverInstance.trackStep();
+      setState(solverInstance.state);
+    },
+    solve: (): void => {
+      solverInstance.solve();
+      setState(solverInstance.state);
+    },
+    state,
+  }), [solverInstance, state]);
+};
+
+const useSolverReplay = <T extends BaseDay<any>>(solverInstance: T) => {
+  const [replay, setReplay] = useState<ReturnType<typeof solverInstance["render"]["getData"]>>();
+  const solver = useSolver(solverInstance);
+  useEffect(() => {
+    solver.solve();
+    setReplay(solverInstance.render.getData() as ReturnType<typeof solverInstance["render"]["getData"]>);
+  }, []);
+
+  const [currentFrameIndex, setCurrentFrameIndex] = useState(0);
+  const currentFrame = useMemo(() => replay?.[currentFrameIndex].state ?? null, [replay, currentFrameIndex]);
+  const setNextFrame = useCallback(() => {
+    if (!replay || currentFrameIndex === replay.length - 1) { return; }
+    setCurrentFrameIndex((v) => v + 1);
+  }, [replay, currentFrameIndex]);
+  const setPrevFrame = useCallback(() => {
+    if (!replay || currentFrameIndex === 0) { return; }
+    setCurrentFrameIndex((v) => v - 1);
+  }, [replay, currentFrameIndex]);
+
+  return {
+    currentFrame,
+    currentFrameIndex,
+    allFrames: replay,
+    setNextFrame,
+    setPrevFrame,
+    setFrame: setCurrentFrameIndex,
+  };
+};
+
+interface ReplayWithThreeProps {
+  solveClass: BaseDay<any>;
+  render: React.ElementType;
+}
+
+const ReplayWithThree = ({ solveClass, render: RenderComponent }: ReplayWithThreeProps) => {
+  const { allFrames, currentFrame, currentFrameIndex, setNextFrame, setFrame } = useSolverReplay(solveClass);
+  const lastFrame = useMemo(() => allFrames?.[allFrames.length - 1].state ?? null, [allFrames]);
+
+  useEffect(() => {
+    const timeout = setTimeout(setNextFrame, 200);
+    return () => clearTimeout(timeout);
+  }, [setNextFrame]);
+
+  return (
+    <>
+      <div style={{ width: 500, height: 500, background: 'black' }}>
+        <Canvas frameloop="demand">
+          <RenderComponent state={currentFrame} lastFrame={lastFrame} />
+        </Canvas>
+      </div>
+      <ul>
+        {allFrames?.map((v, i) => (
+          <li key={i} style={{ background: i === currentFrameIndex ? 'wheat' : 'white' }} onClick={() => setFrame(i)}>
+            {JSON.stringify(v.labels)}
+          </li>
+        ))}
+      </ul>
+    </>
+  )
+}
+
+export default ReplayWithThree;
