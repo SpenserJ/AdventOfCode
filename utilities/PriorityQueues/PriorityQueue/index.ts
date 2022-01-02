@@ -5,7 +5,7 @@ abstract class PriorityQueue<T> {
 
   public abstract remove(value: T, priority: number): this;
 
-  public abstract pull(): T;
+  public abstract pull(): T | null;
 }
 
 export default PriorityQueue;

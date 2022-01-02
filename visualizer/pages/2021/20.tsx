@@ -6,6 +6,7 @@ import Head from 'next/head'
 import Day20, { State } from '@spenserj-aoc/2021/day20/solve';
 import ReplayWithThree from '../../components/ReplayWithThree';
 import Grid2D from '../../components/ReplayWithThree/Grid2D';
+import { Replay } from '@spenserj-aoc/utilities/BaseDay';
 
 const input1 = `
 ..#.#..#####.#.#.#.###.##.....###.##.#..###.####..#####..#....#..#..##..###..######.###...####..#..#####..##..#.#####...##.#.#..#.##..#.#......#.###.######.###.####...#.##.##..#..#..#####.....#.#....###..#.##......#.....#..#..#..##..#...##.######.####.####.#.#...#.......#..#.#.#...####.##.#......#..#...##.#.##..#...##.#.##..###.#......#.#.......#.#.#.####.###.##...#.....####.#..#..#.##.#....##..#.####....##...##..#...#......#.#.......#.......##..####..#...#.#.#...##..#.#..###..#####........#..####......#..#';
@@ -123,8 +124,8 @@ const input2 = `
 const getKey = (x: number, y: number) => (y << 8) + x;
 
 interface GridProps extends MeshProps {
-  state: State | null;
-  lastFrame: State | null;
+  currentFrame: Replay<State> | null;
+  lastFrame: Replay<State> | null;
 }
 
 const colors = [
@@ -132,12 +133,13 @@ const colors = [
   new Color('orange'),
 ] as const;
 
-const Grid = ({ state, lastFrame }: GridProps) => {
+const Grid = ({ currentFrame, lastFrame }: GridProps) => {
+  const state = currentFrame?.state;
   const cameraState = {
-    minX: lastFrame?.minX || 0,
-    maxX: lastFrame?.maxX || 0,
-    minY: lastFrame?.minY || 0,
-    maxY: lastFrame?.maxY || 0,
+    minX: lastFrame?.state.minX || 0,
+    maxX: lastFrame?.state.maxX || 0,
+    minY: lastFrame?.state.minY || 0,
+    maxY: lastFrame?.state.maxY || 0,
   };
 
   return (
@@ -153,7 +155,7 @@ const Grid = ({ state, lastFrame }: GridProps) => {
   )
 }
 
-const Year2021: NextPage = () => (
+const Year2021Day20: NextPage = () => (
   <>
     <Head>
       <title key="title">2021 - 20</title>
@@ -165,4 +167,4 @@ const Year2021: NextPage = () => (
   </>
 );
 
-export default Year2021;
+export default Year2021Day20;

@@ -24,11 +24,11 @@ const Grid2D = ({ size, defaultColor, getColor, invertY = false }: Grid2DProps) 
     let i = 0;
     for (let x = minX; x < maxX; x++) {
       for (let y = minY; y < maxY; y++) {
-        i += 1;
         const posY = invertY ? minY + (maxY - y) : y;
         tempObject.position.set(x, posY, 0);
         tempObject.updateMatrix()
         instance.current!.setMatrixAt(i, tempObject.matrix)
+        i += 1;
       }
     }
     instance.current!.instanceMatrix.needsUpdate = true

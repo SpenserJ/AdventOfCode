@@ -1,12 +1,9 @@
 /* eslint-disable object-curly-newline */
-import {
+import Solver, {
   GameState,
   getPossibleRoomExits,
   Hallway,
   injectPart2,
-  parseInput,
-  part1,
-  part2,
 } from './solve';
 
 const input = `
@@ -25,7 +22,7 @@ describe('2020/12/23', () => {
   );
 
   test('parseInput', () => {
-    expect(parseInput(input)).toEqual({
+    expect(new Solver(input).state).toEqual({
       hallway: Array(7).fill('.'),
       rooms: [
         { for: 'A', amphipods: ['B', 'A'], done: false, filling: false },
@@ -35,7 +32,7 @@ describe('2020/12/23', () => {
       ],
     });
 
-    expect(parseInput(injectPart2(input))).toEqual({
+    expect(new Solver(injectPart2(input)).state).toEqual({
       hallway: Array(7).fill('.'),
       rooms: [
         { for: 'A', amphipods: ['B', 'D', 'D', 'A'], done: false, filling: false },
@@ -201,10 +198,10 @@ describe('2020/12/23', () => {
   });
 
   test('Part 1', () => {
-    expect(part1(input)).toEqual(12521);
+    expect(new Solver(input).part1()).toEqual(12521);
   });
 
   test('Part 2', () => {
-    expect(part2(input)).toEqual(44169);
+    expect(new Solver(input).part2()).toEqual(44169);
   });
 });

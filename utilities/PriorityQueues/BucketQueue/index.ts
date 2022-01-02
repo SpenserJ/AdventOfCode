@@ -19,7 +19,7 @@ export default class BucketQueue<T> extends PriorityQueue<T> {
     return this;
   }
 
-  public pull(): T {
+  public pull(): T | null {
     while (this.currentBucket < this.buckets.length) {
       const bucket = this.buckets[this.currentBucket];
       const next = bucket ? bucket.pop() : undefined;

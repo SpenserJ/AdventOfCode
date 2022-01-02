@@ -32,7 +32,7 @@ const useSolverReplay = <T extends BaseDay<any>>(solverInstance: T) => {
     setReplay(solverInstance.render.getData() as ReturnType<typeof solverInstance["render"]["getData"]>);
   }, [solverInstance]);
 
-  const currentFrame = useMemo(() => replay?.[currentFrameIndex].state ?? null, [replay, currentFrameIndex]);
+  const currentFrame = useMemo(() => replay?.[currentFrameIndex] ?? null, [replay, currentFrameIndex]);
   const setNextFrame = useCallback(() => {
     if (!replay || currentFrameIndex === replay.length - 1) { return; }
     setCurrentFrameIndex((v) => v + 1);
@@ -78,7 +78,7 @@ const ReplayWithThree = ({ defaultInput, SolveClass, render: RenderComponent }: 
   const [input, setInput] = useState(defaultInput);
   const solver = useMemo(() => new SolveClass(input), [SolveClass, input]);
   const { allFrames, currentFrame, currentFrameIndex, setNextFrame, setFrame } = useSolverReplay(solver);
-  const lastFrame = useMemo(() => allFrames?.[allFrames.length - 1].state ?? null, [allFrames]);
+  const lastFrame = useMemo(() => allFrames?.[allFrames.length - 1] ?? null, [allFrames]);
 
   useEffect(() => {
     const timeout = setTimeout(setNextFrame, 200);
@@ -89,7 +89,7 @@ const ReplayWithThree = ({ defaultInput, SolveClass, render: RenderComponent }: 
     <ReplayWithThreeContainer>
       <CanvasContainer>
         <Canvas frameloop="demand">
-          <RenderComponent state={currentFrame} lastFrame={lastFrame} />
+          <RenderComponent currentFrame={currentFrame} lastFrame={lastFrame} />
         </Canvas>
       </CanvasContainer>
       <ReplayListContainer>

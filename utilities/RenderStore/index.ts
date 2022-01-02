@@ -57,7 +57,13 @@ class RenderStore<TRecord = {}> extends RenderStoreStub<TRecord> {
     const newRecord = {
       ...lastRecord,
       labels: { ...this.activeLabels },
-      [key]: cloneDeep(value, true),
+      [key]: cloneDeep(value, (toClone) => {
+        if (typeof (toClone as any).clone === 'function') {
+          return (toClone as any).clone();
+        }
+        return cloneDeep(value, true);
+      }),
+      // [key]: value,
     };
     this.data.push(newRecord as RenderRecord<TRecord>);
   }

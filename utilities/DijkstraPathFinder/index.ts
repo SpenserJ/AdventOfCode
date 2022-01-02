@@ -1,13 +1,13 @@
 import { BucketQueue } from '../PriorityQueues';
 
 export interface CostNode {
-  cost: number | ((source: this) => number);
+  cost: number | ((source: this | null) => number);
   edges: this[];
 }
 
 interface PathNode<T extends CostNode> {
   tentativeCost: number;
-  source: this;
+  source: this | undefined;
   visited: boolean;
   value: T;
 }
@@ -48,14 +48,14 @@ export default class DijkstraPathFinder<T extends CostNode = CostNode> {
   }
 
   run(start: T, end: T) {
-    const startNode = this.nodes.get(start);
-    const endNode = this.nodes.get(end);
+    const startNode = this.nodes.get(start)!;
+    const endNode = this.nodes.get(end)!;
 
     startNode.tentativeCost = (typeof startNode.value.cost === 'number')
       ? startNode.value.cost
       : startNode.value.cost(null);
 
-    let currNode: PathNode<T>;
+    let currNode: PathNode<T> | null;
     const queue = new BucketQueue<PathNode<T>>();
     queue.insert(startNode, startNode.tentativeCost);
 
@@ -65,7 +65,7 @@ export default class DijkstraPathFinder<T extends CostNode = CostNode> {
       for (let i = 0; i < currNode.value.edges.length; i += 1) {
         const edge = currNode.value.edges[i];
         if (!this.nodes.has(edge)) { this.addEdgeNode(edge); }
-        const edgeNode = this.nodes.get(edge);
+        const edgeNode = this.nodes.get(edge)!;
         const edgeCost = (typeof edge.cost === 'number') ? edge.cost : edge.cost(currNode.value);
         const valueThroughNode = currNode.tentativeCost + edgeCost;
         if (edgeNode.tentativeCost > valueThroughNode) {
@@ -91,7 +91,7 @@ export default class DijkstraPathFinder<T extends CostNode = CostNode> {
     // Calculate the path in reverse
     const path: CostNode[] = [end];
     currNode = endNode;
-    while (currNode !== startNode) {
+    while (currNode.source && currNode !== startNode) {
       path.push(currNode.source.value);
       currNode = currNode.source;
     }

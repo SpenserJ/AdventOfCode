@@ -6,6 +6,7 @@ import Head from 'next/head'
 import Day17, { Day17State } from '@spenserj-aoc/2021/day17/solve';
 import ReplayWithThree, { Camera, GridHelper } from '../../components/ReplayWithThree';
 import Grid2D from '../../components/ReplayWithThree/Grid2D';
+import { Replay } from '@spenserj-aoc/utilities/BaseDay';
 
 const input1 = 'target area: x=20..30, y=-10..-5';
 
@@ -13,8 +14,8 @@ const input2 = 'target area: x=155..182, y=-117..-67';
 
 const getKey = (x: number, y: number) => (y << 8) + x;
 interface GridProps extends MeshProps {
-  state: Day17State | null;
-  lastFrame: Day17State | null;
+  currentFrame: Replay<Day17State> | null;
+  lastFrame: Replay<Day17State> | null;
 }
 
 const colors = [
@@ -70,8 +71,9 @@ const lineMaterial = new LineBasicMaterial({ color : 0xff0000 });
 const newLineMaterial = new LineBasicMaterial({ color : 0x00ff00 });
 const zoneMaterial = new LineBasicMaterial({ color: 'yellow' });
 
-const Grid = ({ state, lastFrame }: GridProps) => {
+const Grid = ({ currentFrame, lastFrame }: GridProps) => {
   const { invalidate } = useThree();
+  const state = currentFrame?.state;
 
   useEffect(() => {
     if (!state) { return; }
@@ -122,7 +124,7 @@ const Grid = ({ state, lastFrame }: GridProps) => {
   )
 }
 
-const Year2021: NextPage = () => (
+const Year2021Day17: NextPage = () => (
   <>
     <Head>
       <title key="title">2021 - 20</title>
@@ -134,4 +136,4 @@ const Year2021: NextPage = () => (
   </>
 );
 
-export default Year2021;
+export default Year2021Day17;

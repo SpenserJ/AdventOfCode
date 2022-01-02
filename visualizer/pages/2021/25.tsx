@@ -6,6 +6,7 @@ import Head from 'next/head'
 import Day25, { State } from '@spenserj-aoc/2021/day25/solve';
 import ReplayWithThree from '../../components/ReplayWithThree';
 import Grid2D from '../../components/ReplayWithThree/Grid2D';
+import { Replay } from '@spenserj-aoc/utilities/BaseDay';
 
 const input1 = `
 .>vv....vv>.v.vv....v>vv>.v>..vv.>.v...v...>v>v.>.>.>..>..>.>v...>>v.v>...vv.v.>.>.vv.vv.v...v.>vvv>>.>...v>..>.>..>v.>.>.v.>...>.>.v..v.>v
@@ -159,7 +160,7 @@ v.v..>>v.v
 ....v..v.>`.trim();
 
 interface GridProps extends MeshProps {
-  state: State | null;
+  currentFrame: Replay<State> | null;
 }
 
 const colors = {
@@ -168,7 +169,8 @@ const colors = {
   '.': new Color('black'),
 } as const;
 
-const Grid = ({ state }: GridProps) => {
+const Grid = ({ currentFrame }: GridProps) => {
+  const state = currentFrame?.state;
   const cameraState = {
     height: !state ? 0 : state.floor.length,
     width: !state ? 0 : state.floor[0].length,
@@ -187,7 +189,7 @@ const Grid = ({ state }: GridProps) => {
   )
 }
 
-const Year2021: NextPage = () => (
+const Year2021Day25: NextPage = () => (
   <>
     <Head>
       <title key="title">2021 - 25</title>
@@ -199,4 +201,4 @@ const Year2021: NextPage = () => (
   </>
 );
 
-export default Year2021;
+export default Year2021Day25;

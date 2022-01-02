@@ -1,6 +1,7 @@
-import { DijkstraPathFinder } from '@spenserj-aoc/utilities';
+import DijkstraPathFinder from '@spenserj-aoc/utilities/DijkstraPathFinder';
+import BaseDay from '@spenserj-aoc/utilities/BaseDay';
 
-const validAmphipods = ['A', 'B', 'C', 'D'] as const;
+export const validAmphipods = ['A', 'B', 'C', 'D'] as const;
 export type Amphipod = typeof validAmphipods[number];
 export type PossibleAmphipod = Amphipod | '.';
 export type Hallway = [
@@ -25,7 +26,7 @@ export type Room = RoomGeneration & {
 // Hall: 01x2x3x4x56
 // Room: xx0x1x2x3xx
 const adjustedRoomIndex = [2, 4, 6, 8];
-const adjustedHallIndex = [0, 1, 3, 5, 7, 9, 10];
+export const adjustedHallIndex = [0, 1, 3, 5, 7, 9, 10];
 
 const seenStates = new Map<string, GameState>();
 
@@ -44,21 +45,27 @@ export const getPossibleRoomExits = (fromRoom: number, hallway: Hallway): number
   return possible;
 };
 
+export const injectPart2 = (rawInput: string) => `${rawInput.slice(0, 42)}
+#D#C#B#A#
+#D#B#A#C#${rawInput.slice(42)}`;
+
 export class GameState {
   public hallway: Hallway;
 
   public rooms: Room[];
 
-  private _edges: GameState[];
+  public key: Readonly<string>;
+
+  private _edges: GameState[] | null = null;
 
   constructor(hallway: Hallway, rooms: Array<RoomGeneration | Room>) {
     this.hallway = hallway;
     this.rooms = rooms.map((room) => this.processRoomState(room));
 
-    const key = this.flatten();
+    this.key = this.flatten();
     // eslint-disable-next-line no-constructor-return
-    if (seenStates.has(key)) { return seenStates.get(key); }
-    seenStates.set(key, this);
+    if (seenStates.has(this.key)) { return seenStates.get(this.key)!; }
+    seenStates.set(this.key, this);
   }
 
   private processRoomState(room: RoomGeneration | Room): Room {
@@ -156,7 +163,7 @@ export class GameState {
   /**
    * The cost for this step over the previous step
    */
-  public cost(from: GameState): number {
+  public cost(from: GameState | null): number {
     if (from === null) { return 0; }
 
     const hallIndex = from.hallway.findIndex((v, i) => this.hallway[i] !== v);
@@ -218,63 +225,86 @@ export class GameState {
     newRooms[roomIndex] = newRoom;
     return new GameState(newHallway, newRooms);
   }
+
+  public clone() { return this; }
 }
 
-export const parseInput = (rawInput: string): GameState => {
-  const hallway = Array(7).fill('.') as Hallway;
-  const allAmphipods = rawInput.trim()
-    .substring(31) // There are 31 characters that come before the first room
-    .split('')
-    .filter((v) => validAmphipods.includes(v as Amphipod)) as Amphipod[];
+export interface ReplayState {
+  state: GameState;
+  bestPath?: GameState[];
+  currentNode?: GameState;
+}
 
-  const rooms: RoomGeneration[] = [];
-  const countPerRoom = allAmphipods.length / 4;
-  for (let i = 0; i < 4; i += 1) {
-    const room: RoomGeneration = { for: validAmphipods[i], amphipods: [] };
-    for (let j = 0; j < countPerRoom; j += 1) {
-      room.amphipods.push(allAmphipods[i + (j * 4)]);
-    }
-    rooms.push(room);
+export default class Day23 extends BaseDay<GameState, ReplayState> {
+  private rawInput: string;
+
+  constructor(rawInput: string) {
+    super(rawInput);
+    this.rawInput = rawInput;
   }
-  return new GameState(hallway, rooms);
-};
 
-const solve = (input: GameState, solved: GameState) => {
-  const pathWalker = new DijkstraPathFinder([input, solved]);
-  pathWalker.circuitBreaker = 500000;
-  const { path, cost } = pathWalker.run(input, solved);
-  // console.log(path.map((v) => (v as GameState).pretty()).join('\n\n'));
-  return cost;
-};
+  parseInput(rawInput: string) {
+    seenStates.clear();
+    const hallway = Array(7).fill('.') as Hallway;
+    const allAmphipods = rawInput.trim()
+      .substring(31) // There are 31 characters that come before the first room
+      .split('')
+      .filter((v) => validAmphipods.includes(v as Amphipod)) as Amphipod[];
 
-export const part1 = (rawInput: string) => {
-  seenStates.clear();
-  const input = parseInput(rawInput);
-  return solve(input, new GameState(
-    '.......'.split('') as Hallway,
-    [
-      { for: 'A', amphipods: ['A', 'A'] },
-      { for: 'B', amphipods: ['B', 'B'] },
-      { for: 'C', amphipods: ['C', 'C'] },
-      { for: 'D', amphipods: ['D', 'D'] },
-    ],
-  ));
-};
+    const rooms: RoomGeneration[] = [];
+    const countPerRoom = allAmphipods.length / 4;
+    for (let i = 0; i < 4; i += 1) {
+      const room: RoomGeneration = { for: validAmphipods[i], amphipods: [] };
+      for (let j = 0; j < countPerRoom; j += 1) {
+        room.amphipods.push(allAmphipods[i + (j * 4)]);
+      }
+      rooms.push(room);
+    }
+    return new GameState(hallway, rooms);
+  }
 
-export const injectPart2 = (rawInput: string) => `${rawInput.slice(0, 42)}
-#D#C#B#A#
-#D#B#A#C#${rawInput.slice(42)}`;
+  step() {}
 
-export const part2 = (rawInput: string) => {
-  seenStates.clear();
-  const input = parseInput(injectPart2(rawInput));
-  return solve(input, new GameState(
-    '.......'.split('') as Hallway,
-    [
-      { for: 'A', amphipods: ['A', 'A', 'A', 'A'] },
-      { for: 'B', amphipods: ['B', 'B', 'B', 'B'] },
-      { for: 'C', amphipods: ['C', 'C', 'C', 'C'] },
-      { for: 'D', amphipods: ['D', 'D', 'D', 'D'] },
-    ],
-  ));
-};
+  runPathFinder(solved: GameState) {
+    const pathWalker = new DijkstraPathFinder([this.state, solved]);
+    pathWalker.circuitBreaker = 500000;
+    return pathWalker.run(this.state, solved);
+  }
+
+  part1() {
+    seenStates.clear();
+    const { path, cost } = this.runPathFinder(new GameState(
+      '.......'.split('') as Hallway,
+      [
+        { for: 'A', amphipods: ['A', 'A'] },
+        { for: 'B', amphipods: ['B', 'B'] },
+        { for: 'C', amphipods: ['C', 'C'] },
+        { for: 'D', amphipods: ['D', 'D'] },
+      ],
+    ));
+    this.render.update('bestPath', path);
+    for (let i = 0; i < path.length; i += 1) {
+      this.render.update('currentNode', path[i]);
+    }
+    return cost;
+  }
+
+  part2() {
+    seenStates.clear();
+    this.state = this.parseInput(injectPart2(this.rawInput));
+    const { path, cost } = this.runPathFinder(new GameState(
+      '.......'.split('') as Hallway,
+      [
+        { for: 'A', amphipods: ['A', 'A', 'A', 'A'] },
+        { for: 'B', amphipods: ['B', 'B', 'B', 'B'] },
+        { for: 'C', amphipods: ['C', 'C', 'C', 'C'] },
+        { for: 'D', amphipods: ['D', 'D', 'D', 'D'] },
+      ],
+    ));
+    this.render.update('bestPath', path);
+    for (let i = 0; i < path.length; i += 1) {
+      this.render.update('currentNode', path[i]);
+    }
+    return cost;
+  }
+}

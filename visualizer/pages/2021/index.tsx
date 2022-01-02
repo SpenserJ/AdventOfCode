@@ -12,7 +12,9 @@ const Year2021: NextPage = () => (
     <h2>--- Year 2021 ---</h2>
 
     <ul>
+      <li><Link href="/2021/17">Day 17</Link></li>
       <li><Link href="/2021/20">Day 20</Link></li>
+      <li><Link href="/2021/23">Day 23</Link></li>
       <li><Link href="/2021/25">Day 25</Link></li>
     </ul>
   </>
