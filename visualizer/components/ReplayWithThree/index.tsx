@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
 import BaseDay from '@spenserj-aoc/utilities/BaseDay';
 import styled from 'styled-components';
@@ -24,13 +24,14 @@ const useSolver = <T extends BaseDay<any>>(solverInstance: T) => {
 
 const useSolverReplay = <T extends BaseDay<any>>(solverInstance: T) => {
   const [replay, setReplay] = useState<ReturnType<typeof solverInstance["render"]["getData"]>>();
+  const [currentFrameIndex, setCurrentFrameIndex] = useState(0);
   const solver = useSolver(solverInstance);
   useEffect(() => {
     solver.solve();
+    setCurrentFrameIndex(0);
     setReplay(solverInstance.render.getData() as ReturnType<typeof solverInstance["render"]["getData"]>);
-  }, []);
+  }, [solverInstance]);
 
-  const [currentFrameIndex, setCurrentFrameIndex] = useState(0);
   const currentFrame = useMemo(() => replay?.[currentFrameIndex].state ?? null, [replay, currentFrameIndex]);
   const setNextFrame = useCallback(() => {
     if (!replay || currentFrameIndex === replay.length - 1) { return; }
@@ -64,13 +65,19 @@ const ReplayListContainer = styled.div`
   height: 80vh;
 `;
 
+type Class<T> = new (...args: any[]) => T;
+
 interface ReplayWithThreeProps {
-  solveClass: BaseDay<any>;
+  defaultInput: string;
+  SolveClass: Class<BaseDay<any>>;
   render: React.ElementType;
 }
 
-const ReplayWithThree = ({ solveClass, render: RenderComponent }: ReplayWithThreeProps) => {
-  const { allFrames, currentFrame, currentFrameIndex, setNextFrame, setFrame } = useSolverReplay(solveClass);
+const ReplayWithThree = ({ defaultInput, SolveClass, render: RenderComponent }: ReplayWithThreeProps) => {
+  const inputRef = useRef<HTMLTextAreaElement>();
+  const [input, setInput] = useState(defaultInput);
+  const solver = useMemo(() => new SolveClass(input), [SolveClass, input]);
+  const { allFrames, currentFrame, currentFrameIndex, setNextFrame, setFrame } = useSolverReplay(solver);
   const lastFrame = useMemo(() => allFrames?.[allFrames.length - 1].state ?? null, [allFrames]);
 
   useEffect(() => {
@@ -86,6 +93,8 @@ const ReplayWithThree = ({ solveClass, render: RenderComponent }: ReplayWithThre
         </Canvas>
       </CanvasContainer>
       <ReplayListContainer>
+        <textarea ref={inputRef} defaultValue={defaultInput} />
+        <button onClick={() => setInput(inputRef.current!.value)}>Update Input</button>
         <ul>
           {allFrames?.map((v, i) => (
             <li key={i} style={{ background: i === currentFrameIndex ? 'wheat' : 'white' }} onClick={() => setFrame(i)}>

@@ -120,16 +120,12 @@ const input2 = `
 .#......##.###...##..##..###.####.#....##.#.#.#....##.#....##...######.....##..##....#.###..#..#.##.
 #...#...#.......#.#.#####.#..###..#..#...###...###..#.#.......###.#..##.#####...##.#####...#.#.####.`.trim();
 
-const input = input2;
-
 const getKey = (x: number, y: number) => (y << 8) + x;
 
 interface GridProps extends MeshProps {
   state: State | null;
   lastFrame: State | null;
 }
-
-const realSolver = new Day20(input);
 
 const colors = [
   new Color('black'),
@@ -165,7 +161,7 @@ const Year2021: NextPage = () => (
 
     <h2>--- Year 2021: Day 20 ---</h2>
 
-    <ReplayWithThree solveClass={realSolver} render={Grid} />
+    <ReplayWithThree defaultInput={input1} SolveClass={Day20} render={Grid} />
   </>
 );
 

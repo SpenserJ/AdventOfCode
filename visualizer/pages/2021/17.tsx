@@ -11,15 +11,11 @@ const input1 = 'target area: x=20..30, y=-10..-5';
 
 const input2 = 'target area: x=155..182, y=-117..-67';
 
-const input = input1;
-
 const getKey = (x: number, y: number) => (y << 8) + x;
 interface GridProps extends MeshProps {
   state: Day17State | null;
   lastFrame: Day17State | null;
 }
-
-const realSolver = new Day17(input);
 
 const colors = [
   new Color('red'),
@@ -134,7 +130,7 @@ const Year2021: NextPage = () => (
 
     <h2>--- Year 2021: Day 20 ---</h2>
 
-    <ReplayWithThree solveClass={realSolver} render={Grid} />
+    <ReplayWithThree defaultInput={input1} SolveClass={Day17} render={Grid} />
   </>
 );
 
