@@ -35,7 +35,9 @@ class RenderStore<TRecord = {}> extends RenderStoreStub<TRecord> {
     value?: string | number,
   ): void {
     if (typeof keyOrLabels === 'string') {
-      this.activeLabels[keyOrLabels] = value;
+      if (typeof value !== 'undefined') {
+        this.activeLabels[keyOrLabels] = value;
+      }
     } else {
       Object.assign(this.activeLabels, keyOrLabels);
     }

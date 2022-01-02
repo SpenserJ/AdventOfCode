@@ -68,6 +68,4 @@ export default class Day25 extends BaseDay<State> {
     while (this.state.hasMoved) { this.trackStep(); }
     return this.currentStep;
   }
-
-  part2(): number { return undefined; }
 }

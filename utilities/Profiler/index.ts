@@ -18,7 +18,7 @@ export default class Profiler {
   public stop(name: string): void {
     if (!this.inProgress[name]) { throw new Error(`Profiler wasn't started for ${name}`); }
     const time = Number(getNow() - this.inProgress[name]);
-    this.inProgress[name] = undefined;
+    delete this.inProgress[name];
     this.times[name] ||= [];
     this.times[name].push(time);
   }

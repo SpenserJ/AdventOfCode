@@ -74,7 +74,7 @@ interface ReplayWithThreeProps {
 }
 
 const ReplayWithThree = ({ defaultInput, SolveClass, render: RenderComponent }: ReplayWithThreeProps) => {
-  const inputRef = useRef<HTMLTextAreaElement>();
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const [input, setInput] = useState(defaultInput);
   const solver = useMemo(() => new SolveClass(input), [SolveClass, input]);
   const { allFrames, currentFrame, currentFrameIndex, setNextFrame, setFrame } = useSolverReplay(solver);

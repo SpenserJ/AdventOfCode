@@ -29,7 +29,7 @@ export interface Day17State {
 
 export default class Day17 extends BaseDay<Day17State> {
   parseInput(rawInput: string): Day17State {
-    const [, x1, x2, y1, y2] = rawInput.match(/x=(-?\d+)\.\.(-?\d+), y=(-?\d+)\.\.(-?\d+)/);
+    const [, x1, x2, y1, y2] = rawInput.match(/x=(-?\d+)\.\.(-?\d+), y=(-?\d+)\.\.(-?\d+)/) || [];
     return {
       xRange: [x1, x2].map((v) => Number(v)).sort((a, b) => a - b),
       yRange: [y1, y2].map((v) => Number(v)).sort((a, b) => a - b),

@@ -33,24 +33,24 @@ export default abstract class BaseDay<TState, TReplay = Replay<TState>> {
     this.render.update('state', this.state);
   }
 
-  public abstract part1(): string | number;
-
-  public abstract part2(): string | number;
-
   public solve(): void {
     this.profiler.start('solve');
-    this.render.setLabel('part', 1);
-    this.profiler.start('part1');
-    const part1 = this.part1();
-    this.profiler.stop('part1');
-    console.log('Part 1:', part1, `(${this.profiler.totals().part1.toFixed(2)}ms)`);
-    this.render.setLabel('part', 2);
-    this.profiler.start('part2');
-    const part2 = this.part2();
-    this.profiler.stop('part2');
+    if (typeof (this as any).part1 === 'function') {
+      this.render.setLabel('part', 1);
+      this.profiler.start('part1');
+      const part1 = (this as any).part1();
+      this.profiler.stop('part1');
+      console.log('Part 1:', part1, `(${this.profiler.totals().part1.toFixed(2)}ms)`);
+    }
+    if (typeof (this as any).part2 === 'function') {
+      this.render.setLabel('part', 2);
+      this.profiler.start('part2');
+      const part2 = (this as any).part2();
+      this.profiler.stop('part2');
+      console.log('Part 2:', part2, `(${this.profiler.totals().part2.toFixed(2)}ms)`);
+    }
     this.profiler.stop('solve');
     const profilerTotals = this.profiler.totals();
-    console.log('Part 2:', part2, `(${profilerTotals.part2.toFixed(2)}ms)`);
     console.log(`Total time: ${profilerTotals.solve.toFixed(2)}ms`);
   }
 }
