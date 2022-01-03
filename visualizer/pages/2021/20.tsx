@@ -141,7 +141,6 @@ const Grid = ({ currentFrame, lastFrame }: GridProps) => {
     minY: lastFrame?.state.minY || 0,
     maxY: lastFrame?.state.maxY || 0,
   };
-
   return (
     <Grid2D
       defaultColor={colors[0]}

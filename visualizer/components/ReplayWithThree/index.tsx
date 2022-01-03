@@ -71,19 +71,29 @@ interface ReplayWithThreeProps {
   defaultInput: string;
   SolveClass: Class<BaseDay<any>>;
   render: React.ElementType;
+  defaultPlaybackSpeed?: number;
 }
 
-const ReplayWithThree = ({ defaultInput, SolveClass, render: RenderComponent }: ReplayWithThreeProps) => {
+const ReplayWithThree = ({
+  defaultInput,
+  SolveClass,
+  render: RenderComponent,
+  defaultPlaybackSpeed = 200,
+}: ReplayWithThreeProps) => {
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const [input, setInput] = useState(defaultInput);
   const solver = useMemo(() => new SolveClass(input), [SolveClass, input]);
   const { allFrames, currentFrame, currentFrameIndex, setNextFrame, setFrame } = useSolverReplay(solver);
   const lastFrame = useMemo(() => allFrames?.[allFrames.length - 1] ?? null, [allFrames]);
 
+  const [playing, setPlaying] = useState(true);
+  const [playbackSpeed, setPlaybackSpeed] = useState(defaultPlaybackSpeed);
+
   useEffect(() => {
-    const timeout = setTimeout(setNextFrame, 200);
+    if (!playing) { return; }
+    const timeout = setTimeout(setNextFrame, playbackSpeed);
     return () => clearTimeout(timeout);
-  }, [setNextFrame]);
+  }, [setNextFrame, playing, playbackSpeed]);
 
   return (
     <ReplayWithThreeContainer>
@@ -95,6 +105,17 @@ const ReplayWithThree = ({ defaultInput, SolveClass, render: RenderComponent }: 
       <ReplayListContainer>
         <textarea ref={inputRef} defaultValue={defaultInput} />
         <button onClick={() => setInput(inputRef.current!.value)}>Update Input</button>
+        <br />
+        <button onClick={() => setPlaying(!playing)}>{playing ? 'Pause' : 'Play'}</button>
+        <input
+          type="range"
+          min={20}
+          max={1000}
+          step={10}
+          value={playbackSpeed}
+          onChange={(e) => setPlaybackSpeed(Number(e.target.value))}
+        />
+        {`${playbackSpeed}ms/frame`}
         <ul>
           {allFrames?.map((v, i) => (
             <li key={i} style={{ background: i === currentFrameIndex ? 'wheat' : 'white' }} onClick={() => setFrame(i)}>

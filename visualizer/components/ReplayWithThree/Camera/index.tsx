@@ -4,7 +4,7 @@ import { OrthographicCamera } from "three";
 import { ReplayViewport, useReplayViewport } from "../useReplayViewport";
 
 export const Orthographic = (props: ReplayViewport) => {
-  const { largest, cenX, cenY } = useReplayViewport(props);
+  const { largest, cenX, cenY, width, height } = useReplayViewport(props);
   const ref = useRef<OrthographicCamera>()
   const set = useThree(state => state.set)
   // Make the camera known to the system

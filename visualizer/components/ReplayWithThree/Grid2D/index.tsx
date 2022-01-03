@@ -50,7 +50,7 @@ const Grid2D = ({ size, defaultColor, getColor, invertY = false }: Grid2DProps) 
     <>
       <ambientLight />
       <Camera.Orthographic {...size} />
-      <instancedMesh ref={instance} args={[undefined, undefined, width * height]} position={[0.5, -0.5, -1]}>
+      <instancedMesh ref={instance} args={[undefined, undefined, width * height]} position={[0, 0, -1]}>
         <boxBufferGeometry attach="geometry" args={[1, 1, 1]}>
           <instancedBufferAttribute attachObject={['attributes', 'color']} args={[colorArray, 1]} />
         </boxBufferGeometry>

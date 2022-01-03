@@ -15,16 +15,20 @@ export const useReplayViewport = (viewport: ReplayViewport) => {
       ? { minX: 0, maxX: viewport.width, minY: 0, maxY: viewport.height }
       : viewport;
 
-  const width = maxX - minX;
-  const height = maxY - minY;
+  // This is required to keep the cells within their grid lines
+  const shiftedMaxX = ((maxX - minX) % 2 === 0) ? maxX + 1 : maxX;
+  const shiftedMaxY = ((maxY - minY) % 2 === 0) ? maxY + 1 : maxY;
+
+  const width = shiftedMaxX - minX;
+  const height = shiftedMaxY - minY;
   const largest = Math.max(width, height);
-  const cenX = Math.floor(minX / 2) + Math.floor(maxX / 2);
-  const cenY = Math.floor(minY / 2) + Math.floor(maxY / 2);
+  const cenX = Math.floor(minX / 2) + Math.floor(shiftedMaxX / 2);
+  const cenY = Math.floor(minY / 2) + Math.floor(shiftedMaxY / 2);
   return useMemo(() => ({
     minX,
-    maxX,
+    maxX: shiftedMaxX,
     minY,
-    maxY,
+    maxY: shiftedMaxY,
     width,
     height,
     largest,

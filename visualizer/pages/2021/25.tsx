@@ -197,7 +197,7 @@ const Year2021Day25: NextPage = () => (
 
     <h2>--- Year 2021: Day 25 ---</h2>
 
-    <ReplayWithThree defaultInput={input1} SolveClass={Day25} render={Grid} />
+    <ReplayWithThree defaultInput={input1} SolveClass={Day25} render={Grid} defaultPlaybackSpeed={50} />
   </>
 );
 
