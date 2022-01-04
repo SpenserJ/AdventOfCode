@@ -1,5 +1,5 @@
 import BaseDay from '@spenserj-aoc/utilities/BaseDay';
-import BaseIntcode, { OpcodeResult, symbolExit } from '../Intcode';
+import BaseIntcode, { OpcodeResult } from '../Intcode';
 
 export default class Day2 extends BaseDay<BaseIntcode> {
   private lastResult: OpcodeResult = undefined;
@@ -18,7 +18,7 @@ export default class Day2 extends BaseDay<BaseIntcode> {
   }
 
   private run(): void {
-    while (this.lastResult !== symbolExit) { this.trackStep(); }
+    while (this.lastResult !== BaseIntcode.symbols.exit) { this.trackStep(); }
   }
 
   public part1(): number {

@@ -1,8 +1,6 @@
 import makeSeekableIterator, { SeekableIterator } from '@spenserj-aoc/utilities/makeSeekIterator';
 
-export const symbolExit = Symbol('Exit');
-
-export type OpcodeResult = number | void | typeof symbolExit;
+export type OpcodeResult = number | void | typeof BaseIntcode['symbols'][keyof typeof BaseIntcode['symbols']];
 
 export type OpcodeFunction = (modes: number[], ...args: number[]) => OpcodeResult;
 
@@ -19,11 +17,15 @@ export interface OpcodeWithModes {
 }
 
 export default class BaseIntcode {
+  public static symbols = {
+    exit: Symbol('Exit'),
+  };
+
   private originalCode: string;
 
   public memory: number[];
 
-  private pointer: SeekableIterator<number>;
+  protected pointer: SeekableIterator<number>;
 
   private opcodes = new Map<number, OpcodeFunction>();
 
@@ -39,7 +41,7 @@ export default class BaseIntcode {
       this.set(output, this.get(a, modes[0]) * this.get(b, modes[1]));
     });
 
-    this.addOpcode(99, () => symbolExit);
+    this.addOpcode(99, () => BaseIntcode.symbols.exit);
   }
 
   public reset(): void {
@@ -75,12 +77,12 @@ export default class BaseIntcode {
       modes,
       call,
       numParameters,
-    }
+    };
   }
 
   public step(): OpcodeResult {
     const next = this.pointer.next();
-    if (next.done === true) { return symbolExit; }
+    if (next.done === true) { return BaseIntcode.symbols.exit; }
 
     const opcodeData = this.getOpcodeData(next.value);
     if (!opcodeData.call) { throw new Error(`Unknown Opcode: ${next.value}`); }
@@ -114,7 +116,7 @@ export default class BaseIntcode {
 
   public run(): OpcodeResult {
     let value: OpcodeResult;
-    while (value !== symbolExit) { value = this.step(); }
+    while (value !== BaseIntcode.symbols.exit) { value = this.step(); }
     return value;
   }
 }
