@@ -35,4 +35,20 @@ describe('BaseIntcode', () => {
     expect(getResult('2,4,4,5,99,0')).toEqual('2,4,4,5,99,9801');
     expect(getResult('1,1,1,4,99,5,6,0,99')).toEqual('30,1,1,4,2,5,6,0,99');
   });
+
+  test('Opcode Modes', () => {
+    const intCode = new BaseIntcode('');
+    expect((intCode as any).getOpcodeData('102')).toEqual(expect.objectContaining({
+      opcode: 2,
+      modes: [1, 0, 0],
+    }));
+    expect((intCode as any).getOpcodeData('01002')).toEqual(expect.objectContaining({
+      opcode: 2,
+      modes: [0, 1, 0],
+    }));
+    expect((intCode as any).getOpcodeData('10002')).toEqual(expect.objectContaining({
+      opcode: 2,
+      modes: [0, 0, 1],
+    }));
+  });
 });

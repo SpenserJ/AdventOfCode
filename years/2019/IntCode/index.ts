@@ -4,7 +4,19 @@ export const symbolExit = Symbol('Exit');
 
 export type OpcodeResult = number | void | typeof symbolExit;
 
-export type OpcodeFunction = (...args: number[]) => OpcodeResult;
+export type OpcodeFunction = (modes: number[], ...args: number[]) => OpcodeResult;
+
+export enum ParameterMode {
+  position,
+  immediate,
+}
+
+export interface OpcodeWithModes {
+  opcode: number;
+  modes: ParameterMode[];
+  call: OpcodeFunction;
+  numParameters: number;
+}
 
 export default class BaseIntcode {
   private originalCode: string;
@@ -19,12 +31,12 @@ export default class BaseIntcode {
     this.originalCode = program.trim();
     this.reset();
 
-    this.addOpcode(1, (a, b, output) => {
-      this.memory[output] = this.memory[a] + this.memory[b];
+    this.addOpcode(1, (modes, a, b, output) => {
+      this.set(output, this.get(a, modes[0]) + this.get(b, modes[1]));
     });
 
-    this.addOpcode(2, (a, b, output) => {
-      this.memory[output] = this.memory[a] * this.memory[b];
+    this.addOpcode(2, (modes, a, b, output) => {
+      this.set(output, this.get(a, modes[0]) * this.get(b, modes[1]));
     });
 
     this.addOpcode(99, () => symbolExit);
@@ -35,20 +47,47 @@ export default class BaseIntcode {
     this.pointer = makeSeekableIterator(this.memory);
   }
 
-  public addOpcode(code: number, fn: OpcodeFunction): void {
+  protected addOpcode(code: number, fn: OpcodeFunction): void {
     this.opcodes.set(code, fn.bind(this));
+  }
+
+  public get(param: number, mode: ParameterMode = ParameterMode.position): number {
+    if (mode === ParameterMode.position) { return this.memory[param]; }
+    return param;
+  }
+
+  public set(param: number, value: number): void {
+    this.memory[param] = value;
+  }
+
+  protected getOpcodeData(rawOpcode: number): OpcodeWithModes {
+    const str = rawOpcode.toString();
+    const opcode = Number(str.slice(-2));
+    const call = this.opcodes.get(opcode);
+    const numParameters = Math.max(0, call ? call.length - 1 : 0);
+
+    const modes: ParameterMode[] = Array(numParameters).fill(0);
+    for (let i = 0; i < str.length - 2; i += 1) {
+      modes[i] = Number(str[str.length - 3 - i]) as ParameterMode;
+    }
+    return {
+      opcode,
+      modes,
+      call,
+      numParameters,
+    }
   }
 
   public step(): OpcodeResult {
     const next = this.pointer.next();
     if (next.done === true) { return symbolExit; }
 
-    const opcode = this.opcodes.get(next.value);
-    if (!opcode) { throw new Error(`Unknown Opcode: ${next.value}`); }
+    const opcodeData = this.getOpcodeData(next.value);
+    if (!opcodeData.call) { throw new Error(`Unknown Opcode: ${next.value}`); }
 
     const args: number[] = [];
     // Function.length is the number of arguments that the function requires
-    for (let i = 0; i < opcode.length; i += 1) {
+    for (let i = 0; i < opcodeData.numParameters; i += 1) {
       const nextArg = this.pointer.next();
       if (nextArg.done === true) {
         throw new Error(`Opcode ${next.value} was missing parameter ${i + 0}`);
@@ -56,15 +95,15 @@ export default class BaseIntcode {
       args.push(nextArg.value);
     }
 
-    return opcode(...args);
+    return opcodeData.call(opcodeData.modes, ...args);
   }
 
   public getInstructions(): number[][] {
     const instructions: number[][] = [];
     for (let i = 0; i < this.memory.length; i += 1) {
       const next: number[] = [this.memory[i]];
-      const opcode = this.opcodes.get(next[0]);
-      for (let j = 0; j < opcode?.length ?? 0; j += 1) {
+      const opcodeData = this.getOpcodeData(next[0]);
+      for (let j = 0; j < opcodeData?.numParameters ?? 0; j += 1) {
         i += 1;
         next.push(this.memory[i]);
       }
