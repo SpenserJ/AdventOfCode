@@ -2,7 +2,10 @@ import makeSeekableIterator, { SeekableIterator } from '@spenserj-aoc/utilities/
 
 export type OpcodeResult = number | void | typeof BaseIntcode['symbols'][keyof typeof BaseIntcode['symbols']];
 
-export type OpcodeFunction = (modes: number[], ...args: number[]) => OpcodeResult;
+export type OpcodeFunction = (
+  modes: number[],
+  ...args: number[]
+) => OpcodeResult | Promise<OpcodeResult>;
 
 export enum ParameterMode {
   position,
@@ -80,7 +83,7 @@ export default class BaseIntcode {
     };
   }
 
-  public step(): OpcodeResult {
+  public step(): OpcodeResult | Promise<OpcodeResult> {
     const next = this.pointer.next();
     if (next.done === true) { return BaseIntcode.symbols.exit; }
 
@@ -114,9 +117,14 @@ export default class BaseIntcode {
     return instructions;
   }
 
-  public run(): OpcodeResult {
+  public async run(): Promise<OpcodeResult> {
     let value: OpcodeResult;
-    while (value !== BaseIntcode.symbols.exit) { value = this.step(); }
+    // eslint-disable-next-line no-await-in-loop
+    while (value !== BaseIntcode.symbols.exit) { value = await this.step(); }
     return value;
+  }
+
+  public clone() {
+    return this.getInstructions();
   }
 }

@@ -54,3 +54,36 @@ export default abstract class BaseDay<TState, TReplay = Replay<TState>> {
     console.log(`Total time: ${profilerTotals.solve.toFixed(2)}ms`);
   }
 }
+
+export abstract class AsyncBaseDay<TState, TReplay = Replay<TState>>
+  extends BaseDay<TState, TReplay> {
+  protected abstract step(): void | Promise<void>;
+
+  public async trackStep(): Promise<void> {
+    this.currentStep += 1;
+    this.render.setLabel({ action: 'step', step: this.currentStep });
+    await this.step();
+    this.render.update('state', this.state);
+  }
+
+  public async solve(): Promise<void> {
+    this.profiler.start('solve');
+    if (typeof (this as any).part1 === 'function') {
+      this.render.setLabel('part', 1);
+      this.profiler.start('part1');
+      const part1 = await (this as any).part1();
+      this.profiler.stop('part1');
+      console.log('Part 1:', part1, `(${this.profiler.totals().part1.toFixed(2)}ms)`);
+    }
+    if (typeof (this as any).part2 === 'function') {
+      this.render.setLabel('part', 2);
+      this.profiler.start('part2');
+      const part2 = await (this as any).part2();
+      this.profiler.stop('part2');
+      console.log('Part 2:', part2, `(${this.profiler.totals().part2.toFixed(2)}ms)`);
+    }
+    this.profiler.stop('solve');
+    const profilerTotals = this.profiler.totals();
+    console.log(`Total time: ${profilerTotals.solve.toFixed(2)}ms`);
+  }
+}

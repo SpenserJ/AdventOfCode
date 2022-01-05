@@ -73,4 +73,6 @@ class RenderStore<TRecord = {}> extends RenderStoreStub<TRecord> {
   }
 }
 
-export default (process.env.NEXT_PUBLIC_RENDER ? RenderStore : RenderStoreStub);
+export default (process.env.NEXT_PUBLIC_RENDER || process.env.RENDER)
+  ? RenderStore
+  : RenderStoreStub;

@@ -1,15 +1,15 @@
-import BaseDay from '@spenserj-aoc/utilities/BaseDay';
+import { AsyncBaseDay } from '@spenserj-aoc/utilities/BaseDay';
 import Intcode4, { OpcodeResult } from './Intcode';
 
-export default class Day5 extends BaseDay<Intcode4> {
+export default class Day5 extends AsyncBaseDay<Intcode4> {
   private lastResult: OpcodeResult = undefined;
 
   public parseInput(rawInput: string) {
     return new Intcode4(rawInput);
   }
 
-  protected step(): void {
-    this.lastResult = this.state.step();
+  protected async step(): Promise<void> {
+    this.lastResult = await this.state.step();
   }
 
   private reset(): void {
@@ -17,25 +17,26 @@ export default class Day5 extends BaseDay<Intcode4> {
     this.lastResult = undefined;
   }
 
-  private run(): void {
-    while (this.lastResult !== Intcode4.symbols.exit) { this.trackStep(); }
+  private async run(): Promise<void> {
+    // eslint-disable-next-line no-await-in-loop
+    while (this.lastResult !== Intcode4.symbols.exit) { await this.trackStep(); }
   }
 
-  public part1(): number {
+  public async part1(): Promise<number> {
     this.reset();
     let value: number;
     this.state.setOutputCallback((v) => { value = v; });
-    this.state.setInput(1);
-    this.run();
+    this.state.addInput(1);
+    await this.run();
     return value;
   }
 
-  public part2(): number {
+  public async part2(): Promise<number> {
     this.reset();
     let value: number;
     this.state.setOutputCallback((v) => { value = v; });
-    this.state.setInput(5);
-    this.run();
+    this.state.addInput(5);
+    await this.run();
     return value;
   }
 }
