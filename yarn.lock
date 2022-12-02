@@ -1524,6 +1524,31 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@spenserj-aoc/2022@workspace:years/2022":
+  version: 0.0.0-use.local
+  resolution: "@spenserj-aoc/2022@workspace:years/2022"
+  dependencies:
+    "@spenserj-aoc/utilities": "workspace:^"
+    "@swc/cli": ^0.1.55
+    "@swc/core": ^1.2.124
+    "@swc/jest": ^0.2.15
+    "@types/jest": ^27.0.3
+    "@types/node": 16.11.10
+    "@typescript-eslint/eslint-plugin": 5.4.0
+    "@typescript-eslint/parser": 5.4.0
+    eslint: 8.3.0
+    eslint-config-airbnb-base: 15.0.0
+    eslint-config-airbnb-typescript: 16.0.0
+    eslint-import-resolver-node: 0.3.6
+    eslint-plugin-import: 2.25.3
+    jest: ^27.3.1
+    ts-jest: ^27.0.7
+    ts-node: 10.4.0
+    ts-node-dev: next
+    typescript: 4.5.4
+  languageName: unknown
+  linkType: soft
+
 "@spenserj-aoc/utilities@workspace:^, @spenserj-aoc/utilities@workspace:utilities":
   version: 0.0.0-use.local
   resolution: "@spenserj-aoc/utilities@workspace:utilities"
