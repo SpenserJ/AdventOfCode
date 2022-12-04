@@ -24,7 +24,7 @@ enum GoalPoints {
   Z = 6,
 }
 
-export default class Day01 extends BaseDay<[string, string][], null> {
+export default class Day02 extends BaseDay<[string, string][], null> {
   parseInput(rawInput: string) {
     return rawInput
       .split('\n')
