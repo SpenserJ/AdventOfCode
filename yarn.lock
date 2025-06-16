@@ -1549,6 +1549,32 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@spenserj-aoc/2023@workspace:years/2023":
+  version: 0.0.0-use.local
+  resolution: "@spenserj-aoc/2023@workspace:years/2023"
+  dependencies:
+    "@spenserj-aoc/utilities": "workspace:^"
+    "@swc/cli": ^0.1.55
+    "@swc/core": ^1.2.124
+    "@swc/jest": ^0.2.15
+    "@types/jest": ^27.0.3
+    "@types/node": 16.11.10
+    "@typescript-eslint/eslint-plugin": 5.4.0
+    "@typescript-eslint/parser": 5.4.0
+    "@tyriar/fibonacci-heap": ^2.0.9
+    eslint: 8.3.0
+    eslint-config-airbnb-base: 15.0.0
+    eslint-config-airbnb-typescript: 16.0.0
+    eslint-import-resolver-node: 0.3.6
+    eslint-plugin-import: 2.25.3
+    jest: ^27.3.1
+    ts-jest: ^27.0.7
+    ts-node: 10.4.0
+    ts-node-dev: next
+    typescript: 4.5.4
+  languageName: unknown
+  linkType: soft
+
 "@spenserj-aoc/utilities@workspace:^, @spenserj-aoc/utilities@workspace:utilities":
   version: 0.0.0-use.local
   resolution: "@spenserj-aoc/utilities@workspace:utilities"
@@ -2307,6 +2333,13 @@ __metadata:
     "@typescript-eslint/types": 5.8.1
     eslint-visitor-keys: ^3.0.0
   checksum: 46567678718a227b34a255a3606e1a2c5190a470dc9493d4c175f57566d2c16b88780fb273ca44f22cab06d45d87b25371215e93b88ac10a475877bd64bdfece
+  languageName: node
+  linkType: hard
+
+"@tyriar/fibonacci-heap@npm:^2.0.9":
+  version: 2.0.9
+  resolution: "@tyriar/fibonacci-heap@npm:2.0.9"
+  checksum: 1781df7370351878a16498778ffd417ac13ddff19a58d59571f8cb93d5884cbba27e1956112820ff37f91fc386aa2d3936099e03e7d5579ff5ba9d4d73209df4
   languageName: node
   linkType: hard
 

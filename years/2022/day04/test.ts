@@ -8,7 +8,7 @@ const input = `
 6-6,4-6
 2-6,4-8`;
 
-describe('2022/12/03', () => {
+describe('2022/12/04', () => {
   test('Part 1', () => {
     expect(new Solver(input).part1()).toEqual(2);
   });

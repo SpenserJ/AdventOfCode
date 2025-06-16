@@ -16,12 +16,19 @@ export default abstract class BaseDay<TState, TReplay = Replay<TState>> {
 
   public abstract parseInput(rawInput: string): TState;
 
+  protected rawInput: string;
+
   constructor(rawInput: string) {
+    this.rawInput = rawInput;
     this.profiler.start('parseInput');
     this.state = this.parseInput(rawInput.trim());
     this.render.setLabel({ action: 'parseInt', step: 0 });
     this.render.update('state', this.state);
     this.profiler.stop('parseInput');
+  }
+
+  reset() {
+    this.state = this.parseInput(this.rawInput.trim());
   }
 
   protected abstract step(): void;

@@ -10,6 +10,7 @@ export type OpcodeFunction = (
 export enum ParameterMode {
   position,
   immediate,
+  relative,
 }
 
 export interface OpcodeWithModes {
@@ -29,6 +30,8 @@ export default class BaseIntcode {
   public memory: number[];
 
   protected pointer: SeekableIterator<number>;
+
+  protected relativeBase = 0;
 
   private opcodes = new Map<number, OpcodeFunction>();
 
@@ -50,6 +53,7 @@ export default class BaseIntcode {
   public reset(): void {
     this.memory = this.originalCode.split(',').map((v) => Number(v));
     this.pointer = makeSeekableIterator(this.memory);
+    this.relativeBase = 0;
   }
 
   protected addOpcode(code: number, fn: OpcodeFunction): void {
@@ -58,6 +62,11 @@ export default class BaseIntcode {
 
   public get(param: number, mode: ParameterMode = ParameterMode.position): number {
     if (mode === ParameterMode.position) { return this.memory[param]; }
+    if (mode === ParameterMode.relative) {
+      console.log({ relativeBase: this.relativeBase, param });
+      throw new Error('oops');
+      return this.memory[this.relativeBase + param];
+    }
     return param;
   }
 
